@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS files (
+    id SERIAL PRIMARY KEY,
+    key VARCHAR(255) NOT NULL UNIQUE,
+    owner_id BIGINT NOT NULL,
+    extension VARCHAR(20) NOT NULL,
+    size BIGINT NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    is_private BOOLEAN NOT NULL,
+    created_at TIMESTAMP NOT NULL
+);

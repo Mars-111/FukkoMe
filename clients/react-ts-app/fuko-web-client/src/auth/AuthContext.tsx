@@ -1,15 +1,23 @@
 import { createContext, useState, useContext, useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 import type { ChildrenType } from "../general/models/ChildrenType";
-import Identity from "./identity";
+import { useIdentity, type AuthenticatedType, type AuthenticateMethodProps, type RegisterProps } from "./hooks/useIdentity";
 
 type AuthContextType = {
-    identity: Identity,
+    authenticated: AuthenticatedType, 
+    myUserId: number | null, 
+    authenticate: (props: AuthenticateMethodProps) => Promise<void>, 
+    register: (props: RegisterProps) => Promise<boolean>, 
+    logout: () => Promise<void>, 
+    startRefreshAccessTokenInterval: () => Promise<void>, 
+    stopRefreshAccessTokenInterval: () => void, 
+    refreshAccessTokenIntervalIsRunning: () => boolean,
+    getAccessToken: () => string | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
+export const useAuthContext = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
         throw new Error("useAuth must be used within an AuthProvider");
@@ -18,24 +26,40 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({children}: ChildrenType): ReactNode => {
-    const [identity] = useState<Identity>(new Identity({
-        client: "web",
-        grantType: "cookie"
-    }));
+    const { 
+        authenticated, 
+        myUserId, 
+        authenticate, 
+        register, 
+        logout,
+        startRefreshAccessTokenInterval, 
+        stopRefreshAccessTokenInterval, 
+        refreshAccessTokenIntervalIsRunning,
+        getAccessToken } = useIdentity();
 
 
     useEffect(() => {
-        if (!identity || identity.refreshAccessTokenIntervalIsRunning()) 
+        if (refreshAccessTokenIntervalIsRunning() || authenticated !== "authenticated") 
             return;
-        identity.startRefreshAccessTokenInterval();
+        startRefreshAccessTokenInterval();
         return () => {
-            identity.stopRefreshAccessTokenInterval();
+            stopRefreshAccessTokenInterval();
         };
-    }, [identity]);
+    }, [authenticated]);
 
 
     return (
-        <AuthContext.Provider value={{ identity }}>
+        <AuthContext.Provider value={{ 
+            authenticated, 
+            myUserId, 
+            authenticate, 
+            register, 
+            logout,
+            startRefreshAccessTokenInterval, 
+            stopRefreshAccessTokenInterval, 
+            refreshAccessTokenIntervalIsRunning,
+            getAccessToken
+        }}>
             {children}
         </AuthContext.Provider>
     )

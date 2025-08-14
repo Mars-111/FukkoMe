@@ -21,7 +21,7 @@ public class CurrentUserUtil {
 
                     Object principal = authentication.getPrincipal();
                     if (principal instanceof Jwt jwt) {
-                        Object claim = jwt.getClaim("user_id");
+                        Object claim = jwt.getClaim("userId");
                         if (claim != null) {
                             sink.next(Long.parseLong(claim.toString()));
                             return;

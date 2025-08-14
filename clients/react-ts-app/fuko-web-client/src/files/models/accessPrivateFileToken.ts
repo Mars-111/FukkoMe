@@ -4,5 +4,5 @@
 
 export type AccessPrivateFileToken = {
     token: string;
-    expiresAt: string;
+    expiresAt: Date;
 };

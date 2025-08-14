@@ -2,7 +2,7 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/store-file-service/src/main/java/ru/kors/storefileservice/repository/FileRepository.java" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/store-file-service/src/main/resources/db/migration/V1__init.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/store-file-service/src/main/resources/schema.sql" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/timeline-master-service/src/main/java/ru/kors/timelineservice/services/TimelineService.java" dialect="GenericSQL" />
   </component>
 </project>

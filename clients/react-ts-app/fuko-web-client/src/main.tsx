@@ -4,15 +4,15 @@ import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './auth/AuthContext.tsx'
 import { BrowserRouter } from 'react-router-dom'
-import { CacheProvider } from './general/components/CacheContext.tsx'
+import Modal from 'react-modal'
+
+Modal.setAppElement('#root')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <CacheProvider>
-          <App />
-        </CacheProvider>
+        <App />
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>

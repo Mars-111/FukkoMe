@@ -13,3 +13,5 @@ export class FileCacheDatabase extends Dexie {
         });
     }
 }
+
+export const fileDb = new FileCacheDatabase();

@@ -1,8 +1,6 @@
 package ru.kors.chatsservice.services;
 
 
-
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

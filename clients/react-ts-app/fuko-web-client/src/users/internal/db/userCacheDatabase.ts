@@ -2,7 +2,7 @@ import Dexie from "dexie";
 import type { Table } from "dexie";
 import type { User } from "../../models/user";
 
-export default class UserCacheDatabase extends Dexie {
+export class UserCacheDatabase extends Dexie {
     users!: Table<User, number>;
 
     constructor() {
@@ -12,3 +12,5 @@ export default class UserCacheDatabase extends Dexie {
         });
     }
 }
+
+export const userDb = new UserCacheDatabase();

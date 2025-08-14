@@ -18,6 +18,7 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/demo/pom.xml" />
+        <option value="$PROJECT_DIR$/keycloak-event-listener/pom.xml" />
         <option value="$PROJECT_DIR$/keycloak-spi/pom.xml" />
         <option value="$PROJECT_DIR$/socket-controller-service/pom.xml" />
         <option value="$PROJECT_DIR$/user-service/pom.xml" />

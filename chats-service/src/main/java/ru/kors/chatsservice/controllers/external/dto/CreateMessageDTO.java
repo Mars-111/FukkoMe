@@ -9,7 +9,7 @@ public record CreateMessageDTO(
         String content,
         @JsonProperty("chat_id")
         Long chatId,
-        @JsonProperty("files")
+        @JsonProperty("file_tokens")
         List<String> fileTokens,
         @JsonProperty("reply_to")
         Long replyToId,

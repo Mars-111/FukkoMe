@@ -64,16 +64,16 @@ public class FileAccessTokenService {
 
     public String generateFileTokenForCreate(Long fileId, Long userId, String extension, String filename, FileMetadata fileMetadata, Long fileSize, boolean privateFile) {
         String jwt = Jwts.builder()
-                .subject("file_create")
+                .subject("fileCreated")
                 .issuer("file-service")
                 .claim("userId", userId)
                 .claim("fileId", fileId)
                 .claim("size", fileSize)
                 .claim("extension", extension)
                 .claim("filename", filename)
-                .claim("file_metadata", fileMetadata)
+                .claim("fileMetadata", fileMetadata)
                 .claim("private", privateFile)
-                .expiration(new Date(System.currentTimeMillis() + 90000)) // 90 seconds
+                .expiration(new Date(System.currentTimeMillis() + 360000)) // 360 seconds
                 .signWith(secretKey)
                 .compact();
         log.info("access file jwt: {}", jwt);

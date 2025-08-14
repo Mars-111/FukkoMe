@@ -3,11 +3,8 @@ package org.example.identityservice.models.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.validation.annotation.Validated;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "users",
@@ -36,7 +33,7 @@ public class User {
     private Integer version = 0;
 
     @Column(name="avatar_id")
-    private Long avatarFileId;
+    private Long avatarId;
 
     @Column(name = "created_at")
     private Instant createdAt;

@@ -1,14 +1,23 @@
 spring:
+
   application:
     name: store-file-service
+
+  webflux:
+    multipart:
+      max-in-memory-size: 50MB
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://keycloak.mars-ssn.ru/realms/school-social-network
+          jwk-set-uri: https://id.mars-ssn.ru/.well-known/jwks.json
 
 
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
   r2dbc:
     url: r2dbc:postgresql://localhost:5433/store_media_db
     username: admin
@@ -70,3 +79,6 @@ logging:
     org.flywaydb.core: DEBUG
     org.springframework.r2dbc: DEBUG
     io.r2dbc: DEBUG
+    org.springframework.security.oauth2: TRACE
+    org.springframework.security.authentication: TRACE
+    org.springframework.security: DEBUG

@@ -13,6 +13,7 @@ import ru.kors.storefileservice.exceptions.S3InternalErrorException;
 import ru.kors.storefileservice.models.File;
 import ru.kors.storefileservice.models.UploadResult;
 import ru.kors.storefileservice.repository.FileRepository;
+import ru.kors.storefileservice.services.dto.FileIsPrivateAndKey;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -45,8 +46,8 @@ public class FileService {
 
 
     public Mono<UploadResult> upload(FilePart filePart, Long contentLength, boolean isPrivate) {
-        if (contentLength == null || contentLength <= 0 || contentLength > 9999999) {
-            throw new BadRequestException("Length must be greater than 0 or less than 9999999");
+        if (contentLength == null || contentLength <= 0 || contentLength > 999999999) {
+            throw new BadRequestException("Length must be greater than 0 or less than 999999999");
         }
 
         String key = UUID.randomUUID() + "-" + filePart.filename();
@@ -79,7 +80,7 @@ public class FileService {
                 .handle((resp, sink) -> {
                     if (resp.sdkHttpResponse().isSuccessful()) {
                         log.info("Successfully uploaded to S3: {}", resp.sdkHttpResponse().statusCode());
-                        sink.complete();
+                        sink.next(resp);
                     } else {
                         log.error("Failed to upload to S3: {}", resp.sdkHttpResponse().statusCode());
                         sink.error(new S3InternalErrorException("Failed to upload to S3: " + resp.sdkHttpResponse().statusCode()));
@@ -104,6 +105,15 @@ public class FileService {
         return fileRepository.findKeyById(id);
     }
 
+    public Mono<Boolean> fileIsPublic(Long id) {
+        return fileRepository.findIsPrivateById(id)
+                .map(isPrivate -> !isPrivate);
+    }
+
+    public Mono<FileIsPrivateAndKey> findIsPrivateAndKeyById(Long id) {
+        return fileRepository.findIsPrivateAndKeyById(id);
+    }
+
     public Mono<String> getOneTimeLink(String key, Duration duration) {
 
 
@@ -125,5 +135,9 @@ public class FileService {
         }
 
         return Mono.just(presignedRequest.url().toString());
+    }
+
+    public Mono<File> findById(Long fileId) {
+        return fileRepository.findById(fileId);
     }
 }

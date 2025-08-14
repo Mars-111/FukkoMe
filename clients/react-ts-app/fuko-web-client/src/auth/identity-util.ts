@@ -1,7 +1,6 @@
-import type { GrantType } from "./identity";
 
 
-export function isValidGrantType(grantType: string): grantType is GrantType {
+export function isValidGrantType(grantType: string) {
     return grantType === "authorization_code" || grantType === "cookie";
 }
 

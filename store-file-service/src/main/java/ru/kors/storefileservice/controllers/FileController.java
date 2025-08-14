@@ -37,6 +37,7 @@ public class FileController {
     public Mono<ResponseEntity<String>> uploadMultiple(@RequestPart("file") Mono<FilePart> file,
                                                        @RequestParam("size") Long fileSize,
                                                        @RequestParam("isPrivate") boolean isPrivate) {
+        System.out.println("call /upload");
         return file.flatMap(filePart -> fileService.upload(filePart, fileSize, isPrivate))
                 .map(uploadResult ->
                         fileAccessTokenService.generateFileTokenForCreate(
@@ -50,45 +51,48 @@ public class FileController {
                 .map(ResponseEntity::ok);
     }
 
-    @GetMapping("/{mediaId}")
-    public Mono<ResponseEntity<?>> download(@PathVariable Long mediaId,
-                                            @RequestHeader("Access-File-Token") String mediaToken) {
-        DecodeTokenResult decoded = fileAccessTokenService.decode(mediaToken);
+    @GetMapping("/{fileId}")
+    public Mono<ResponseEntity<?>> download(@PathVariable Long fileId,
+                                            @RequestHeader(value = "AccessFileToken", required = false) String accessFileToken) {
+        System.out.println("call /{fileId}");
+        System.out.println("accessFileToken = " + accessFileToken);
+        if (accessFileToken != null && !accessFileToken.isEmpty()) {
+            DecodeTokenResult decoded = fileAccessTokenService.decode(accessFileToken);
 
-        return currentUserUtil.getCurrentUserId()
-                .handle((currentUserId, sink) -> {
-                    if (!currentUserId.equals(decoded.userId())) {
-                        sink.error(new NotAccessToFileException("Token userId is not equal to current userId"));
-                        return;
-                    }
-                    if (!decoded.allowedMediaIds().contains(mediaId)) {
-                        sink.error(new NotAccessToFileException("Not access to media"));
-                        return;
-                    }
-                    sink.complete();
-                })
-                .flatMap( userId -> fileService.findKeyById(mediaId))
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Media not found")))
-                .flatMap(key ->
-                    fileService.getOneTimeLink(key, Duration.ofSeconds(90))
-                        .map(url -> ResponseEntity
-                                .status(HttpStatus.FOUND)
-                                .header(HttpHeaders.LOCATION, url)
-                                .build())
-                );
-    }
-
-    @GetMapping("/public/{mediaId}")
-    public Mono<ResponseEntity<?>> download(@PathVariable Long mediaId) {
-//        return fileService.findKeyById(mediaId)
-//                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Media not found")))
-//                .flatMap(key ->
-//                        fileService.getOneTimeLink(key, Duration.ofSeconds(90))
-//                                .map(url -> ResponseEntity
-//                                        .status(HttpStatus.FOUND)
-//                                        .header(HttpHeaders.LOCATION, url)
-//                                        .build())
-//                ); переделать
+            return currentUserUtil.getCurrentUserId()
+                    .handle((currentUserId, sink) -> {
+                        if (!currentUserId.equals(decoded.userId())) {
+                            sink.error(new NotAccessToFileException("Token userId is not equal to current userId"));
+                            return;
+                        }
+                        if (!decoded.allowedMediaIds().contains(fileId)) {
+                            sink.error(new NotAccessToFileException("Not access to file"));
+                            return;
+                        }
+                        sink.complete();
+                    })
+                    .flatMap(userId -> fileService.findById(fileId))
+                    .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found")))
+                    .flatMap(file ->
+                            fileService.getOneTimeLink(file.getKey(), Duration.ofSeconds(90))
+                                    .map(url -> ResponseEntity.ok(file.toFileViewDTO(url)))
+                    );
+        }
+        else {
+            return fileService.findById(fileId)
+                    .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found")))
+                    .mapNotNull(file -> {
+                        if (file.isPrivate()) {
+                            return null;
+                        }
+                        return file;
+                    })
+                    .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN, "This file is private!")))
+                    .flatMap(file ->
+                            fileService.getOneTimeLink(file.getKey(), Duration.ofSeconds(90))
+                                    .map(url -> ResponseEntity.ok(file.toFileViewDTO(url)))
+                    );
+        }
     }
 
 

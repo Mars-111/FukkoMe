@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import ru.kors.storefileservice.controllers.dto.FileViewDTO;
 
 import java.time.Instant;
 
@@ -36,5 +37,10 @@ public class File {
 
     @Column(value = "created_at")
     private Instant createdAt; //В реактивном придется ручками устанавливать. Not null
+
+
+    public FileViewDTO toFileViewDTO(String urlS3) {
+        return new FileViewDTO(id, extension, size, filename, urlS3, createdAt);
+    }
 
 }

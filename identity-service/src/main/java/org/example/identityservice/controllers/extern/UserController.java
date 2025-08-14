@@ -1,9 +1,13 @@
 package org.example.identityservice.controllers.extern;
 
 import lombok.RequiredArgsConstructor;
+import org.example.identityservice.controllers.extern.dto.UpdateAvatarDTO;
+import org.example.identityservice.controllers.extern.dto.UpdateUserDTO;
 import org.example.identityservice.models.UserInfo;
 import org.example.identityservice.models.entity.User;
 import org.example.identityservice.services.UserService;
+import org.example.identityservice.utils.CurrentUserUtil;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,12 +26,17 @@ public class UserController {
         return userService.existsByIdAndVersion(userId, version);
     }
 
-    @PostMapping("/me/avatar")
-    public void updateAvatar(@RequestParam("fileId") Long fileId) {
-        Long userId = userService.getUserInfoById(fileId).getId();
-        User user = userService.findById(userId);
-        user.setAvatarFileId(fileId);
-        //Хорошо было бы узнать картинка ли это и публичный ли файл
-        userService.save(user);
+    @GetMapping("/{id}/version")
+    public ResponseEntity<Integer> getVersion(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(userService.getVersion(id));
     }
+
+    @PutMapping("/me")
+    public ResponseEntity<User> updateUser(@RequestBody UpdateUserDTO updateUserDTO) {
+        return ResponseEntity.ok(userService.updateUserAndReturnUser(CurrentUserUtil.getCurrentUser(), updateUserDTO));
+    }
+
+    @PutMapping("/me/avatar")
+    public ResponseEntity<User> updateAvatar(@RequestBody UpdateAvatarDTO updateAvatarDTO) {
+        return ResponseEntity.ok(userService.updateAvatar(CurrentUserUtil.getCurrentUser(), updateAvatarDTO));
 }

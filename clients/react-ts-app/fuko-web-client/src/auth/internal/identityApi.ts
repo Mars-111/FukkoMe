@@ -1,6 +1,5 @@
 import type { Axios } from "axios";
 import axios from "axios";
-import type { GrantType } from "../identity";
 
 const axiosIdentity: Axios = axios.create({
     baseURL: "https://id.mars-ssn.ru",
@@ -26,8 +25,8 @@ axiosIdentity.interceptors.response.use(
     }
 );
 
-interface AuthorizeProps {
-    grantType: GrantType, 
+interface AuthenticateProps {
+    grantType: "authorization_code" | "cookie", 
     redirectUrl: string,
     codeChallenge?: string,
     client: string,
@@ -35,12 +34,13 @@ interface AuthorizeProps {
     password: string
 }
 
-export function authorizeByCookie(props: AuthorizeProps): Promise<void> {
+
+export function authenticateByCookie(props: AuthenticateProps): Promise<void> {
     const body = {
         username: props.username,
         password: props.password
     };
-    return axiosIdentity.post("/api/authorize", body, {
+    return axiosIdentity.post("/api/authenticate", body, {
         params: {
             grantType: props.grantType,
             redirectUrl: props.redirectUrl,

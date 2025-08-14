@@ -48,3 +48,9 @@ logging:
     org.springframework.security: trace
     com.nimbusds.jose: debug
     com.nimbusds.jwt: debug
+
+
+file-service:
+  jwt:
+    secret: ${FILE_JWT_SECRET}
+    issuer: "identity-service"

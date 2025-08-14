@@ -30,7 +30,6 @@ public class UserService {
     private final ChatService chatService;
     private final KafkaProducerService kafkaProducerService;
     private final ChatEventService chatEventService;
-    private final KeycloakService keycloakService;
 
     public List<User> findAll() {
         return userRepository.findAll();

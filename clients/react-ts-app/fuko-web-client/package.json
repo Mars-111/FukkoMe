@@ -13,17 +13,21 @@
     "@react-keycloak/web": "^3.4.0",
     "axios": "^1.10.0",
     "dexie": "^4.0.11",
+    "dexie-react-hooks": "^1.1.7",
     "keycloak-js": "^26.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-easy-crop": "^5.5.0",
+    "react-modal": "^3.16.3",
     "react-router-dom": "^7.6.2",
-    "zustand": "^5.0.6"
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
     "@types/node": "^24.0.3",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@types/react-modal": "^3.16.3",
     "@vitejs/plugin-react-swc": "^3.9.0",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",

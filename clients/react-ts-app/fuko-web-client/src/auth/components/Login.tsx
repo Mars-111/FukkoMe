@@ -1,31 +1,29 @@
 import { useSearchParams, Navigate } from 'react-router-dom';
-import { useAuth } from "../AuthContext";
-import { isValidGrantType } from "../identity-util";
 import { useState } from "react";
-import { useIdentityStore } from '../identity';
+import { useIdentity } from '../hooks/useIdentity';
 
 export function Login() {
     const [searchParams] = useSearchParams();
-
-    const { identity } = useAuth();
-    const authenticated = useIdentityStore(state => state.authenticated);
+    
+    const identity = useIdentity();
     const [awaitAuthorization, setAwaitAuthorization] = useState(false);
 
     const clientIdParam = searchParams.get('clientId');
     const grantTypeParam = searchParams.get('grantType');
     
     if (clientIdParam) {
-        identity.setClient(clientIdParam);
+        //Времено недступно
     }
 
     if (grantTypeParam) {
-        if (!isValidGrantType(grantTypeParam)) {
-            throw new Error(`Invalid grant type: ${grantTypeParam}`);
-        }
-        identity.setGrantType(grantTypeParam);
+        // if (!isValidGrantType(grantTypeParam)) {
+        //     throw new Error(`Invalid grant type: ${grantTypeParam}`);
+        // }
+        // identity.setGrantType(grantTypeParam);
+        //Временно недоступно
     }
 
-    if (authenticated === "authenticated") {
+    if (identity.authenticated === "authenticated") {
         const redirectUrl = searchParams.get('redirectUrl') || '/';
         return <Navigate to={redirectUrl} replace />;
     }
@@ -37,10 +35,11 @@ export function Login() {
         const password = formData.get('password') as string;
         const redirectUrl = searchParams.get('redirectUrl') || '/';
 
-        identity.authorize({
+        identity.authenticate({
             username,
             password,
-            redirectUrl
+            redirectUrl,
+            client: "web"
         }).then(() => {
             setAwaitAuthorization(false);
         }).catch((error) => {

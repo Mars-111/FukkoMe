@@ -16,6 +16,7 @@
           <option value="Password" />
           <option value="CodeVerifier" />
           <option value="Code" />
+          <option value="AccessFileToken" />
         </set>
       </option>
     </inspection_tool>

@@ -1,5 +1,6 @@
 import type { Axios } from "axios";
 import axios from "axios";
+import type { User } from "../../models/user";
 
 
 const axiosUser: Axios = axios.create({
@@ -27,12 +28,34 @@ axiosUser.interceptors.response.use(
 );
 
 
-export function getUserInfo(id: number): Promise<any> {
+export function getUserInfoRequest(id: number): Promise<any> {
     return axiosUser.get(`/api/users/${id}`)
         .then(response => response.data)
         .catch(error => {
             console.error("Failed to fetch user info:", error);
             throw error;
         });
+}
+
+export interface updateMeBodyInterface {
+    username?: string,
+    avatarFileCreatedToken?: string
+};
+
+/*
+    Returned new user version.
+*/
+export function updateMeRequest(updateMeBody: updateMeBodyInterface, authToken: string): Promise<User> {
+    return axiosUser.put("/api/users/me", updateMeBody, {
+        headers: {
+            "Authorization": "Bearer " + authToken
+        }
+    }).then(resp => {
+        return resp.data;
+    });
+}
+
+export function getUserVersion(userId: number): Promise<number> {
+    return axiosUser.get(`/api/users/${userId}/version`);
 }
 

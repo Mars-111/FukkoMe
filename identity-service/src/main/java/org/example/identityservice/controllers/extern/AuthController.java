@@ -8,8 +8,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.identityservice.controllers.extern.dto.AuthorizeRequestDTO;
-import org.example.identityservice.exeptions.NoSuchUserException;
+import org.example.identityservice.controllers.extern.dto.AuthenticateRequestDTO;
+import org.example.identityservice.exeptions.NotSuchUserException;
 import org.example.identityservice.exeptions.NotAuthException;
 import org.example.identityservice.services.authenticatedUserService;
 import org.example.identityservice.utils.PCKEUtil;
@@ -78,13 +78,13 @@ public class AuthController {
         }
         if (userId == null) {
             log.error("User not found or invalid credentials for username/email: {}", usernameOrEmail);
-            throw new NoSuchUserException("User not found or invalid credentials for username/email: " + usernameOrEmail);
+            throw new NotSuchUserException("User not found or invalid credentials for username/email: " + usernameOrEmail);
         }
         return userId;
     }
 
-    @PostMapping("/authorize")
-    public ResponseEntity<?> authorize(
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> authenticate(
                                     @RequestParam String grantType,
                                     @RequestParam(required = false) String redirectUrl,
                                     @RequestParam String clientId,
@@ -92,7 +92,7 @@ public class AuthController {
                                     @Size(min = 43, max = 128, message = "codeChallenge length must be between 43 and 128 characters")
                                     @Pattern(regexp = "^[A-Za-z0-9\\-._~]+$", message = "codeChallenge must be base64url-safe")
                                     String codeChallenge,
-                                    @RequestBody AuthorizeRequestDTO body,
+                                    @RequestBody AuthenticateRequestDTO body,
                                     HttpServletResponse response) throws JOSEException {
         Long userId = null;
 
@@ -110,7 +110,7 @@ public class AuthController {
             try {
                 userId = getUserIdByUsernameOrEmail(body.username(), body.password());
             }
-            catch (NoSuchUserException e) {
+            catch (NotSuchUserException e) {
                 return ResponseEntity.badRequest().body("Invalid username/email or password");
             }
             catch (Exception e) {
@@ -143,7 +143,7 @@ public class AuthController {
             try {
                 userId = getUserIdByUsernameOrEmail(body.username(), body.password());
             }
-            catch (NoSuchUserException e) {
+            catch (NotSuchUserException e) {
                 return ResponseEntity.badRequest().body("Invalid username/email or password");
             }
             catch (Exception e) {
