@@ -56,7 +56,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        log.info("filter 4");
+        log.info("filter 4: " + userId);
 
         Instant exp = jwtEntity.getExpiresAt();
 

@@ -1,21 +1,30 @@
-import { useAuthContext } from "../../auth/AuthContext";
 import { useUserById } from "../hooks/useUserById";
-import { useState, useRef, use, useEffect } from "react";
-import { updateMeRequest, type updateMeBodyInterface } from "../internal/api/userApi";
+import { useState, useRef } from "react";
+import { updateMeRequest, updateMyAvatarRequest, type UpdateMeBodyInterface, type UserProfileResponse } from "../internal/api/userApi";
 import InternalLogicError from "../../general/errors/classes/internalLogicError";
-import { useFileById } from "../../files/hooks/useFileById";
 import { useUploaderFile } from "../../files/hooks/useUploadFile";
-import { FilePreview } from "../../files/components/FilePreview";
-import { updateUser } from "../internal/utils/userCahceUtils";
+import { updateUser } from "../utils/userUtils";
 import type { User } from "../models/user";
 import Modal from "react-modal";
 import { AvatarCropModal } from "../../files/components/AvatarCropModal";
+import { LargeUserAvatar } from "./Avatar";
+import './AvatarTypes.css';
+import { Link } from "react-router-dom";
+import { Loading } from "../../general/components/Loading";
+import { useIdentity } from "../../auth/hooks/useIdentity";
 
 export function UserSettings() {
-    const identity = useAuthContext();
-    const user = useUserById(identity.myUserId!);
-    const avatar = useFileById(user?.avatarId, undefined);
-    const uploaderFile = useUploaderFile(); 
+    const { myUserId } = useIdentity();
+    if (!myUserId) {
+        return "Loading...";
+    }
+    return <Settings userId={myUserId} />;
+}
+
+function Settings({ userId }: { userId: number }) {
+    const { accessToken } = useIdentity();
+    const user = useUserById(userId);
+    const uploaderFile = useUploaderFile();
 
     const [avatarCropModalIsOpen, setAvatarCropModalIsOpen] = useState<boolean>(false);
 
@@ -26,46 +35,39 @@ export function UserSettings() {
     const avatarInputRef = useRef<HTMLInputElement>(null);
     const selectedAvatarRef = useRef<File | null>(null);
 
-    if (!identity.authenticated) {
-        return <h1>Not authenticated!</h1>
-    }
 
     const formClick = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setUpdateUserState("wait update");
-        const accessToken = identity.getAccessToken();
         if (!accessToken)
             throw new InternalLogicError("For some reason the access token (identity.getAccessToken()) === null")
 
-        const sendRequest = (fileTokenCreated: string | null) => {
-            const body: updateMeBodyInterface = {
-                username: usernameInputRef.current?.value
-            };
-            if (fileTokenCreated) {
-                body.avatarFileCreatedToken = fileTokenCreated;
-            }
-            updateMeRequest(body, accessToken)
-            .then((user: User) => {
-                if (!user) {
-                    setUpdateUserState("error update");
-                    return;
-                }
-                setUpdateUserState("success update");
-                updateUser(user);
-            })
-            .catch(() => {
-                setUpdateUserState("error update");
-            });
+        const body: UpdateMeBodyInterface = {
+            username: usernameInputRef.current?.value
         };
+        
 
-        if (file) {
-            uploaderFile.upload(file, false).then((token: string | null) => {
-                console.log("File upload token: ", token);
-                sendRequest(token);
-            });
-        } else {
-            sendRequest(null);
-        }
+
+        updateMeRequest(body, accessToken)
+        .then((userProfileResponse: UserProfileResponse) => {
+            if (!user) {
+                setUpdateUserState("error update");
+                return;
+            }
+            const updateingUser: User = {
+                id: userProfileResponse.id,
+                username: userProfileResponse.username,
+                version: userProfileResponse.version,
+                smallAvatarId: userProfileResponse.small_avatar,
+                largeAvatarId: userProfileResponse.large_avatar,
+                fullscreenAvatarId: userProfileResponse.fullscreen_avatar
+            }
+            setUpdateUserState("success update");
+            updateUser(updateingUser);
+        })
+        .catch(() => {
+            setUpdateUserState("error update");
+        });
     }
 
 
@@ -74,28 +76,70 @@ export function UserSettings() {
         setAvatarCropModalIsOpen(true);
     };
 
-    const handleAvatarCropComplete = async (files: { original: File; small: File; big: File }) => {
-        let originalToken: Promise<string | null> = uploaderFile.upload(files.original, false);
-        let smallToken: Promise<string | null> = uploaderFile.upload(files.small, false);
-        let bigToken: Promise<string | null> = uploaderFile.upload(files.big, false);
-        if (await originalToken === null || await smallToken === null || await bigToken === null) {
+    const handleAvatarCropComplete = async (files: { original: File; small: File; large: File; fullscreen: File }) => {
+        const [originalToken, smallToken, largeToken, fullscreenToken] = await Promise.all([
+            uploaderFile.upload(files.original, false),
+            uploaderFile.upload(files.small, false),
+            uploaderFile.upload(files.large, false),
+            uploaderFile.upload(files.fullscreen, false)
+        ]);
+        if (originalToken === null || smallToken === null || largeToken === null || fullscreenToken === null) {
             // Handle error
             console.error("Error uploading avatar files");
             return; //Само удалиться
         }
-        //TODO
+
+        if (!accessToken) {
+            console.error("No access token available");
+            return;
+        }
+
+        await updateMyAvatarRequest({
+            original: originalToken,
+            small: smallToken,
+            large: largeToken,
+            fullscreen: fullscreenToken
+        }, accessToken).then((userProfileResponse: UserProfileResponse) => {
+            if (!userProfileResponse) {
+                console.error("Error updating avatar");
+                return;
+            }
+            const updateingUser: User = {
+                id: userProfileResponse.id,
+                username: userProfileResponse.username,
+                version: userProfileResponse.version,
+                smallAvatarId: userProfileResponse.small_avatar,
+                largeAvatarId: userProfileResponse.large_avatar,
+                fullscreenAvatarId: userProfileResponse.fullscreen_avatar
+            };
+            updateUser(updateingUser);
+            setUpdateUserState("success update");
+            setAvatarCropModalIsOpen(false);
+        });
     };
+
+
+    if (!user) {
+        return <Loading />;
+    }
 
     return (
         <div>
             <h1>User Settings:</h1>
             <form id="update-user" onSubmit={formClick}>
-                {avatar && <FilePreview file={avatar} />}
-                <p>Current avatar id: {avatar ? avatar.id : "No avatar"}</p>
+                <div className="avatar-container-xl">
+                    {user && <LargeUserAvatar user={user} circle />}
+                </div>
                 <div>
                     <label htmlFor="avatar">Avatar: </label>
                     <input type="file" id="avatar" name="avatar" accept="image/*" ref={avatarInputRef} onChange={handleAvatarChange} />
                 </div>
+
+                {user && <p>avatar small id: {user.smallAvatarId}</p>}
+                {user && <p>avatar large id: {user.largeAvatarId}</p>}
+                {user && <p>avatar fullscreen id: {user.fullscreenAvatarId}</p>}
+
+                {user && <p>version: {user.version}</p>}
 
                 <div>
                     <Modal isOpen={avatarCropModalIsOpen} onRequestClose={() => setAvatarCropModalIsOpen(false)}>
@@ -105,7 +149,6 @@ export function UserSettings() {
                             onComplete={handleAvatarCropComplete} 
                         />
                     </Modal>
-                    <button type="button" onClick={() => setAvatarCropModalIsOpen(true)}>Crop Avatar</button>
                 </div>
 
                 <div>
@@ -119,7 +162,9 @@ export function UserSettings() {
             <div id="status">
                 <p>{updateUserState}</p>
             </div>
+            <div>
+                <Link to="/app/user/me">Профиль</Link>
+            </div>
         </div>
     );
-
 }

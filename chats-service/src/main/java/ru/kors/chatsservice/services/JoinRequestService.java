@@ -1,15 +1,9 @@
 package ru.kors.chatsservice.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.kors.chatsservice.exceptions.BadRequestException;
 import ru.kors.chatsservice.exceptions.NotFoundEntityException;
-import ru.kors.chatsservice.models.entity.Chat;
-import ru.kors.chatsservice.models.entity.User;
 import ru.kors.chatsservice.models.entity.JoinRequest;
-import ru.kors.chatsservice.models.entity.UserEvent;
 import ru.kors.chatsservice.repositories.JoinRequestRepository;
 
 import java.time.LocalDateTime;
@@ -20,7 +14,6 @@ import java.util.List;
 public class JoinRequestService {
 
     private final JoinRequestRepository joinRequestRepository;
-    private final UserService userService;
 
     public List<JoinRequest> findAll() {
         return joinRequestRepository.findAll();
@@ -67,13 +60,13 @@ public class JoinRequestService {
 //        return joinRequestRepository.save(request);
 //    }
 
-    public void acceptJoinRequest(JoinRequest request) {
-        User user = request.getUser();
-        user.getChats().add(request.getChat());
-
-        userService.saveUser(user);
-        joinRequestRepository.delete(request);
-    }
+//    public void acceptJoinRequest(JoinRequest request) {
+//        User user = request.getUser();
+//        user.getChats().add(request.getChat());
+//
+//        userService.saveUser(user);
+//        joinRequestRepository.delete(request);
+//    }
 
     public void deleteById(Long requestId) {
         joinRequestRepository.deleteById(requestId);

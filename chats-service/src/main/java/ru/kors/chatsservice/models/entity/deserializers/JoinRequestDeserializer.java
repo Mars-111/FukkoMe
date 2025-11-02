@@ -7,15 +7,13 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import ru.kors.chatsservice.models.entity.JoinRequest;
-import ru.kors.chatsservice.services.ChatService;
-import ru.kors.chatsservice.services.UserService;
-
+import ru.kors.chatsservice.repositories.ChatRepository;
 import java.io.IOException;
+import java.time.Instant;
 
 @RequiredArgsConstructor
 public class JoinRequestDeserializer extends JsonDeserializer<JoinRequest> {
-    private final UserService userService;
-    private final ChatService chatService;
+    private final ChatRepository chatRepository;
 
     @Override
     public JoinRequest deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
@@ -28,11 +26,15 @@ public class JoinRequestDeserializer extends JsonDeserializer<JoinRequest> {
         }
 
         if (node.has("user_id")) {
-            joinRequest.setUser(userService.findById(node.get("user_id").asLong()));
+            joinRequest.setUserId(node.get("user_id").asLong());
         }
 
         if (node.has("chat_id")) {
-            joinRequest.setChat(chatService.findById(node.get("chat_id").asLong()));
+            joinRequest.setChat(chatRepository.getReferenceById(node.get("chat_id").asLong()));
+        }
+
+        if (node.has("timestamp")) {
+            joinRequest.setTimestamp(Instant.ofEpochMilli(node.get("timestamp").asLong()));
         }
 
         return joinRequest;

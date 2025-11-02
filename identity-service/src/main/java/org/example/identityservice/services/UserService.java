@@ -1,20 +1,28 @@
 package org.example.identityservice.services;
 
+import io.jsonwebtoken.Claims;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.identityservice.controllers.extern.dto.CreateUserDTO;
 import org.example.identityservice.controllers.extern.dto.UpdateAvatarDTO;
 import org.example.identityservice.controllers.extern.dto.UpdateUserDTO;
-import org.example.identityservice.exeptions.InvalidFileToken;
-import org.example.identityservice.exeptions.NotSuchUserException;
-import org.example.identityservice.models.UserIdAndPassword;
-import org.example.identityservice.models.UserInfo;
+import org.example.identityservice.exeptions.*;
+import org.example.identityservice.models.entity.projection.UserIdAndPassword;
+import org.example.identityservice.models.entity.projection.UserProfileProjection;
 import org.example.identityservice.models.entity.User;
 import org.example.identityservice.repositories.UserRepository;
-import org.example.identityservice.repositories.dto.UserUpdateFields;
+import org.example.identityservice.repositories.dto.ModifyingAvatarDTO;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 
 @Service
@@ -48,7 +56,39 @@ public class UserService {
         user.setUsername(createUserDTO.username());
         user.setEmail(createUserDTO.email());
         user.setPassword(passwordEncoder.encode(createUserDTO.password()));
-        return userRepository.save(user);
+        user.setEnabled(true);
+        user.setVersion(0);
+
+        Random random = new Random();
+        Long number = -(random.nextLong(10) + 1);
+        user.setSmallAvatarId(number);
+        user.setLargeAvatarId(number);
+        user.setFullscreenAvatarId(number);
+
+        String conflictFields = null;
+        if (userRepository.existsByUsername(user.getUsername())) {
+            conflictFields = "username";
+        }
+
+        if (userRepository.existsByEmail(user.getEmail())) {
+            if (conflictFields == null) {
+                conflictFields = "email";
+            } else {
+                conflictFields += " email";
+            }
+        }
+
+        if (conflictFields != null) {
+            log.error("Conflict fields: " + conflictFields);
+            throw new ConflictException(conflictFields);
+        }
+
+        try {
+            return userRepository.save(user);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new UnknownException("Unknown error while creating user"); // если не удалось распознать, пробрасываем дальше
+        }
     }
 
     public User findById(Long id) {
@@ -56,8 +96,12 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
     }
 
-    public UserInfo getUserInfoById(Long id) {
-        return userRepository.findInfoById(id)
+    public Instant findUserCreatedAt(Long id) {
+        return userRepository.findUserCreatedAt(id);
+    }
+
+    public UserProfileProjection findUserProfileById(Long id) {
+        return userRepository.findUserProfileById(id)
                 .orElseThrow(() -> new NotSuchUserException("User not found with ID: " + id));
     }
 
@@ -76,79 +120,104 @@ public class UserService {
 
     @Transactional
     public void updateUser(Long userId, UpdateUserDTO updateUserDTO) {
-       UserUpdateFields updateUserFields =  new UserUpdateFields(userId);
-       if (updateUserDTO.username() != null) {
-           updateUserFields.setUsername(updateUserDTO.username());
-       }
-       log.info("111");
-       log.info("Avatar created token: " + updateUserDTO.avatarFileCreatedToken());
-       if (updateUserDTO.avatarFileCreatedToken() != null) {
-           log.info("222");
-           Long avatarFileId = fileTokenService
-                   .verifyUserCreatedAndGetFileIdByCreatedFileToken(updateUserDTO.avatarFileCreatedToken(), userId);
-           if (avatarFileId == null) {
-               throw new InvalidFileToken("invalid file token");
-           }
-           else {
-               log.info("Updating user avatar file with ID: " + avatarFileId);
-               updateUserFields.setAvatarId(avatarFileId);
-           }
-       }
-       log.info("333");
-       log.info("Update user avatar file id: " + updateUserFields.getAvatarId());
-       userRepository.update(updateUserFields);
+        int modify = userRepository.update(userId, updateUserDTO);
+        if (modify == 0) {
+            throw new BadDataException("User not found or the data does not differ");
+        }
+
     }
 
-    public Integer updateUserAndReturnVersion(Long userId, UpdateUserDTO updateUserDTO) {
-        UserUpdateFields updateUserFields =  new UserUpdateFields(userId);
-        if (updateUserDTO.username() != null) {
-            updateUserFields.setUsername(updateUserDTO.username());
-        }
+    private boolean verifyAvatarToken(Claims tokenClaim, Set<String> allowedExtensions, Integer side) {
         log.info("111");
-        log.info("Avatar created token: " + updateUserDTO.avatarFileCreatedToken());
-        if (updateUserDTO.avatarFileCreatedToken() != null) {
-            log.info("222");
-            Long avatarFileId = fileTokenService
-                    .verifyUserCreatedAndGetFileIdByCreatedFileToken(updateUserDTO.avatarFileCreatedToken(), userId);
-            if (avatarFileId == null) {
-                throw new InvalidFileToken("invalid file token");
-            }
-            else {
-                log.info("Updating user avatar file with ID: " + avatarFileId);
-                updateUserFields.setAvatarId(avatarFileId);
-            }
+        if (tokenClaim == null) {
+            return false;
+        }
+        log.info("222");
+        log.info("token private: " + tokenClaim.get("private", Boolean.class));
+        if (tokenClaim.get("private", Boolean.class)) {
+            return false;
         }
         log.info("333");
-        log.info("Update user avatar file id: " + updateUserFields.getAvatarId());
-        return userRepository.updateAndReturnVersion(updateUserFields);
-    }
-
-    public User updateUserAndReturnUser(Long userId, UpdateUserDTO updateUserDTO) {
-        UserUpdateFields updateUserFields =  new UserUpdateFields(userId);
-        if (updateUserDTO.username() != null) {
-            updateUserFields.setUsername(updateUserDTO.username());
+        String extension = tokenClaim.get("extension", String.class);
+        if (!allowedExtensions.contains(extension)) {
+            return false;
         }
-        log.info("111");
-        log.info("Avatar created token: " + updateUserDTO.avatarFileCreatedToken());
-        if (updateUserDTO.avatarFileCreatedToken() != null) {
-            log.info("222");
-            Long avatarFileId = fileTokenService
-                    .verifyUserCreatedAndGetFileIdByCreatedFileToken(updateUserDTO.avatarFileCreatedToken(), userId);
-            if (avatarFileId == null) {
-                throw new InvalidFileToken("invalid file token");
-            }
-            else {
-                log.info("Updating user avatar file with ID: " + avatarFileId);
-                updateUserFields.setAvatarId(avatarFileId);
+        log.info("444");
+        if (side != null) {
+            Map<String, Object> fileMetadata = tokenClaim.get("fileMetadata", Map.class);
+            Integer tokenWidth = (Integer) fileMetadata.get("width");
+            Integer tokenHeight = (Integer) fileMetadata.get("height");
+            if (!tokenWidth.equals(tokenHeight) || tokenWidth > side) {
+                return false;
             }
         }
-        log.info("Update user username: " + updateUserFields.getUsername());
-        log.info("Update user avatar file id: " + updateUserFields.getAvatarId());
-        return userRepository.updateAndReturnUser(updateUserFields);
+        log.info("555");
+        return true;
     }
 
-    public User updateAvatar(Long currentUser, UpdateAvatarDTO updateAvatarDTO) {
-        //TODO
-        return null;
+    @Transactional
+    public void updateAvatar(Long currentUser, UpdateAvatarDTO updateAvatarDTO) {
+        //НУЖНО ПРОВАЛИДИРОВАТЬ
+        Claims originalClaim =
+                fileTokenService.verifyUserCreatedAndGetClaims(updateAvatarDTO.originalAvatarToken(), currentUser);
+        boolean originalAvatarValid = verifyAvatarToken(
+                originalClaim,
+                Set.of("jpg", "jpeg", "png"),
+                null
+        );
+        if (!originalAvatarValid) {
+            throw new InvalidFileToken("Invalid original avatar token");
+        }
+
+        Claims smallClaim =
+                fileTokenService.verifyUserCreatedAndGetClaims(updateAvatarDTO.smallAvatarToken(), currentUser);
+        boolean smallAvatarValid = verifyAvatarToken(
+                smallClaim,
+                Set.of("webp"),
+                128
+        );
+        if (!smallAvatarValid) {
+            throw new InvalidFileToken("Invalid small avatar token");
+        }
+
+        Claims largeClaim =
+                fileTokenService.verifyUserCreatedAndGetClaims(updateAvatarDTO.largeAvatarToken(), currentUser);
+        boolean largeAvatarValid = verifyAvatarToken(
+                largeClaim,
+                Set.of("webp"),
+                512
+        );
+        if (!largeAvatarValid) {
+            throw new InvalidFileToken("Invalid big avatar token");
+        }
+
+        Claims fullscreenClaim =
+                fileTokenService.verifyUserCreatedAndGetClaims(updateAvatarDTO.largeAvatarToken(), currentUser);
+        boolean fullscreenAvatarValid = verifyAvatarToken(
+                largeClaim,
+                Set.of("webp"),
+                1280
+        );
+        if (!fullscreenAvatarValid) {
+            throw new InvalidFileToken("Invalid big avatar token");
+        }
+
+        int modify = userRepository.updateAvatar(currentUser, new ModifyingAvatarDTO(
+                    originalClaim.get("fileId", Long.class),
+                    smallClaim.get("fileId", Long.class),
+                    largeClaim.get("fileId", Long.class),
+                    fullscreenClaim.get("fileId", Long.class)
+                )
+        );
+        if (modify == 0) {
+            throw new BadDataException("User not found or the data does not differ for ID: " + currentUser);
+        }
+    }
+
+    public List<UserProfileProjection> likeUsername(String username, int limit) {
+        if (username.length() < 3) {
+            throw new BadDataException("Username part must be at least 3 characters long");
+        }
+        return userRepository.likeUsername(username, limit);
     }
 }

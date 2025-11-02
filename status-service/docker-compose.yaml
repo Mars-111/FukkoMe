@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7.2
+    container_name: status-service-redis
+    ports:
+      - "6381:6379"
+    restart: unless-stopped

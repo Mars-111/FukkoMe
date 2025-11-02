@@ -15,9 +15,8 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.text.ParseException;
+
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 public class CustomReactiveEdDSAJwtDecoder implements ReactiveJwtDecoder {

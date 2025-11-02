@@ -6,7 +6,7 @@ import "./AvatarCropModal.css";
 type AvatarCropModalProps = {
     close: () => void;
     fileRef: React.RefObject<File | null>;
-    onComplete: (files: { original: File; small: File; big: File }) => Promise<void>;
+    onComplete: (files: { original: File; small: File; large: File; fullscreen: File; }) => Promise<void>;
 };
 
 type CroppedAreaPixels = {
@@ -75,15 +75,30 @@ export function AvatarCropModal({ close, fileRef, onComplete }: AvatarCropModalP
         });
     };
 
+    function getImageDimensions(file: File | Blob): Promise<{ width: number; height: number }> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                resolve({ width: img.width, height: img.height });
+            };
+            img.onerror = (err) => reject(err);
+            img.src = URL.createObjectURL(file);
+        });
+    }
+
+
     const handleComplete = async () => {
         if (!fileRef.current) return;
         setCropping(true);
 
         const original = await getCroppedFile(fileRef.current.name);
-        const small = await getCroppedFile("small.webp", 150, true);
-        const big = await getCroppedFile("big.webp", 600, true);
+        const { width, height } = await getImageDimensions(fileRef.current);
+        console.log("Размер оригинала: " + width + "x" + height);
+        const small = await getCroppedFile("small.webp", width > 128 ? 128 : width, true);
+        const large = width > 512 ? await getCroppedFile("large.webp", 512, true) : small;
+        const fullscreen = width > 1280 ? await getCroppedFile("fullscreen.webp", 1280, true) : large;
 
-        await onComplete({ original: original!, small: small!, big: big! });
+        await onComplete({ original: original!, small: small!, large: large!, fullscreen: fullscreen! });
         setCropping(false);
     };
 

@@ -3,11 +3,20 @@ spring:
     name: chats-service
 
 
+#  cache:
+#    type: redis
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6383
+#      ssl:
+#        enabled: false
+
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://keycloak.mars-ssn.ru/realms/school-social-network
+          jwk-set-uri: https://id.mars-ssn.ru/.well-known/jwks.json
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/chats}
@@ -63,13 +72,6 @@ file-service:
       issuer: "chats-service"
 
 
-keycloak:
-  admin:
-    client-id: admin-cli
-    username: ${KEYCLOAK_ADMIN_USERNAME}
-    password: ${KEYCLOAK_ADMIN_PASSWORD}
-  server-url: https://keycloak.mars-ssn.ru
-  realm: school-social-network
 
 logging:
   level:

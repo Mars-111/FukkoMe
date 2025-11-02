@@ -13,9 +13,11 @@ public class ChatRoleSerializer extends JsonSerializer<ChatRole> {
     public void serialize(ChatRole chatRole, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
         gen.writeNumberField("id", chatRole.getId());
-        gen.writeStringField("role", chatRole.getRole());
-        gen.writeNumberField("user_id", chatRole.getUser().getId());
         gen.writeNumberField("chat_id", chatRole.getChat().getId());
+        gen.writeStringField("name", chatRole.getName());
+        gen.writeNumberField("version", chatRole.getVersion());
+        gen.writeNumberField("rank", chatRole.getRank());
+        gen.writeNumberField("access_flags", chatRole.getAccessFlags());
         gen.writeEndObject();
     }
 }

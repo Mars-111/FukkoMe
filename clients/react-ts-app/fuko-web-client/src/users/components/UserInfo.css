@@ -1,23 +1,16 @@
 .user-info-container {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 16px;
 }
 
-.user-avatar {
-  width: 50px; /* маленькая аватарка */
-  height: 50px;
-  flex-shrink: 0;
+.user-info-avatar {
+  width: 150px; /* маленькая аватарка */
+  height: 150px;
 }
 
-.user-avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%; /* круглая аватарка */
-}
-
-.user-details {
+.user-info-details .user-info-owner-details {
   display: flex;
   flex-direction: column;
   gap: 4px;

@@ -12,7 +12,6 @@ axiosIdentity.interceptors.response.use(
         return response;
     },
     (error) => {
-        console.error('Ошибка при запросе:', error);
         if (error.response) {
             const status = error.response.status;
             console.error(`Ошибка при запросе к ${error.response.url} c кодом ${status}`);
@@ -60,14 +59,14 @@ export function refreshAccessTokenByCookie(): Promise<string | null> {
     });
 }
 
-export interface RegisterProps {
+export interface RegisterRequestProps {
     username: string;
     password: string;
     email: string;
 }
 
-export function registerRequest(props: RegisterProps): Promise<boolean> {
-    return axios.post("/api/register", props)
+export function registerRequest(props: RegisterRequestProps): Promise<boolean> {
+    return axiosIdentity.post("/api/register", props)
         .then(resp => {
             if (resp.status == 200) 
                 return true;

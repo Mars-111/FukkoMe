@@ -1,15 +1,16 @@
 package ru.kors.socketbrokerservice.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jwt.SignedJWT;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -20,7 +21,6 @@ import ru.kors.socketbrokerservice.models.entity.ChatEvent;
 import ru.kors.socketbrokerservice.models.entity.Message;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
@@ -33,10 +33,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class SessionManager {
+    private final KafkaProducerService kafkaProducerService;
+    private final JwtDecoder jwtDecoder;
     @Value("${server.id}")
     private String serverId;
 
-    private static final Duration TTL = Duration.ofHours(48);
+    private static final Duration TTLChats = Duration.ofMinutes(48*60);
+    private static final Duration TTLFetch = Duration.ofMinutes(48*60-1);
 
     private final ObjectMapper objectMapper;
 
@@ -80,94 +83,105 @@ public class SessionManager {
         UserSession userSession = new UserSession(userId, session);
         sessionsById.put(session.getId(), userSession);
         sessionsByUser.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet()).add(userSession);
-
-        // 2) Redis‑keys
-        String dataKey = "u:" + userId;
-        String fetchedKey = dataKey + ":f";
-
+        addSessionInRedis(getUserSessionsKey(userId), session.getId());
 
         log.info("1");
-        Set<Long> chatIds = new HashSet<>();; // Список чатов, на которые подписан пользователь
-        boolean alreadyFetched = Boolean.TRUE.equals(stringRedisTemplate.hasKey(fetchedKey));
+        Set<Long> chatIds = new HashSet<>(); // Список чатов, на которые подписан пользователь
+        boolean alreadyFetched = Boolean.TRUE.equals(stringRedisTemplate.hasKey(getChatFetchedKey(userId)));
         log.info("2");
 
         if (!alreadyFetched) {
             chatIds = usersRestApi.getUserChatsIds(userId);
             log.debug("Fetched {} chats for user {}", chatIds.size(), userId);
             log.info("3");
-            initializeUserChatsInRedis(dataKey, fetchedKey, chatIds);
+            rewriteUserChatsInRedis(getUserChatsKey(userId), getChatFetchedKey(userId), chatIds);
             log.info("4");
         }
         else {
-            log.info("5");
-            reloadUserChatsInRedis(dataKey, fetchedKey, chatIds);
+            chatIds = fetchUserChatsFromRedis(getUserChatsKey(userId));
         }
-        log.info("6");
+        log.info("5");
         //
 
         log.info("user {} chats: {}", userId, chatIds);
 
         // Добавляем подписку на все чаты, на которые подписан пользователь
 
-        subscribeSessionToSubscriptions(userSession, chatIds);
+        subscribeSessionToChats(userSession, chatIds);
 
         log.debug("Registered session {} for user {}", session.getId(), userId);
+
+        kafkaProducerService.sendOnlineStatus(userSession.getUserId(), session.getId(), true);
     }
+
+    private String getUserChatsKey(Long userId) {
+        return "u:" + userId + ":c";
+    }
+
+    private String getUserSessionsKey(Long userId) {
+        return "u:" + userId + ":sess";
+    }
+
+    private String getChatFetchedKey(Long userId) {
+        return "u:" + userId + ":cf";
+    }
+
 
 
     private void closeBadSession(WebSocketSession session) {
         log.warn("Не удалось получить userId из токена для сессии {}", session.getId());
         try {
             session.close(CloseStatus.BAD_DATA);
+            unregisterSession(session.getId());
         }
         catch (Exception e) {
             log.error("Ошибка при закрытии сессии {}: {}", session.getId(), e.getMessage());
         }
     }
 
-    private void initializeUserChatsInRedis(String dataKey, String fetchedKey, Set<Long> chatIds) {
-        longRedisTemplate.executePipelined((RedisCallback<Object>) conn -> {
-            byte[] dataBytes    = STRING_SER.serialize(dataKey);
-            byte[] fetchedBytes = STRING_SER.serialize(fetchedKey);
+    private void rewriteUserChatsInRedis(String userChatsKey, String fetchedKey, Set<Long> chatIds) {
+        // Lua-скрипт: удаляем старый Set, добавляем новый, устанавливаем TTL для обоих ключей
+        String luaScript = """
+            redis.call('DEL', KEYS[1])
+            for i=1,#ARGV-2 do
+                redis.call('SADD', KEYS[1], ARGV[i])
+            end
+            redis.call('SET', KEYS[2], "1")
+            redis.call('EXPIRE', KEYS[1], tonumber(ARGV[#ARGV-1]))
+            redis.call('EXPIRE', KEYS[2], tonumber(ARGV[#ARGV]))
+            return 1
+        """;
 
-            if (!chatIds.isEmpty()) {
-                for (Long id : chatIds) {
-                    conn.sAdd(dataBytes, LONG_SER.serialize(id));
-                }
-                conn.expire(dataBytes, TTL.getSeconds());
-            }
-            conn.set(fetchedBytes, STRING_SER.serialize("1"));
-            conn.expire(fetchedBytes, TTL.getSeconds());
-
-            // Возвращаемое значение не используется, поэтому возвращаем null
-            return null;
-        });
-    }
-
-    @SuppressWarnings("unchecked") // отключает предупреждения о приведении типов
-    private void reloadUserChatsInRedis(String dataKey, String fetchedKey, Set<Long> chatIds) {
-        //TODO
-        List<Object> replies = longRedisTemplate.executePipelined((RedisCallback<Object>) conn -> {
-            byte[] dataBytes    = STRING_SER.serialize(dataKey);
-            byte[] fetchedBytes = STRING_SER.serialize(fetchedKey);
-
-            // SMEMBERS
-            conn.sMembers(dataBytes);
-            // EXPIRE dataKey
-            conn.expire(dataBytes, TTL.getSeconds());
-            // EXPIRE fetchedKey
-            conn.expire(fetchedBytes, TTL.getSeconds());
-
-            return null;
-        });
-        // replies.get(0) — результат SMEMBERS
-        if (!replies.isEmpty()) {
-            chatIds.clear();
-            chatIds.addAll((Set<Long>) replies.get(0));
+        // ARGV = [chatIds..., ttlChats, ttlFetch]
+        String[] args = new String[chatIds.size() + 2];
+        int i = 0;
+        for (Long chatId : chatIds) {
+            args[i++] = chatId.toString();
         }
+        args[i++] = String.valueOf(TTLChats.getSeconds());
+        args[i] = String.valueOf(TTLFetch.getSeconds());
+
+        stringRedisTemplate.execute(
+                new DefaultRedisScript<>(luaScript, Long.class),
+                List.of(userChatsKey, fetchedKey),
+                args
+        );
     }
 
-    private void subscribeSessionToSubscriptions(UserSession userSession, Set<Long> chatIds) {
+    private void addSessionInRedis(String userSessionsKey, String sessionId) {
+        stringRedisTemplate.opsForSet().add(userSessionsKey, sessionId);
+    }
+
+    private void removeSessionFromRedis(String userSessionsKey, String sessionId) {
+        stringRedisTemplate.opsForSet().remove(userSessionsKey, sessionId);
+    }
+
+    private Set<Long> fetchUserChatsFromRedis(String userChatsKey) {
+        Set<Long> chatIds = longRedisTemplate.opsForSet().members(userChatsKey);
+        return chatIds != null ? chatIds : new HashSet<>();
+    }
+
+    private void subscribeSessionToChats(UserSession userSession, Set<Long> chatIds) {
         userSession.getSubscriptions().addAll(chatIds.stream()
                 .map(chatId -> "c:" + chatId.toString())
                 .collect(Collectors.toSet()));
@@ -177,9 +191,6 @@ public class SessionManager {
         }
     }
 
-
-
-
     public void unregisterSession(String sessionId) {
         // Удаляем из userSessions.
         UserSession userSession = sessionsById.get(sessionId);
@@ -187,7 +198,9 @@ public class SessionManager {
             log.warn("Session {} not found for unregister", sessionId);
             return;
         }
+        removeSessionFromRedis(getUserSessionsKey(userSession.getUserId()), sessionId);
 
+        kafkaProducerService.sendOnlineStatus(userSession.getUserId(), userSession.getSession().getId(), false);
         sessionsById.remove(sessionId);
         sessionsByUser.computeIfPresent(userSession.getUserId(), (k, v) -> {
             v.remove(userSession);
@@ -214,8 +227,11 @@ public class SessionManager {
             return;
         }
         if (userSession.getSubscriptions().contains(subscriptionKey.substring(1))) {
-            userSession.getSubscriptions().add(subscriptionKey); //extended
+            log.warn("Session {} for user {} already subscribed to {}",
+                    userSession.getSession().getId(), userSession.getUserId(), subscriptionKey);
+            return;
         }
+        userSession.getSubscriptions().add(subscriptionKey); //extended
         // Добавляем сессию в глобальный индекс подписок.
         subscribedSessions.computeIfAbsent(subscriptionKey, k -> ConcurrentHashMap.newKeySet())
                 .add(userSession);
@@ -297,10 +313,29 @@ public class SessionManager {
 
     private Long getUserId(WebSocketSession session) {
         try {
-            SignedJWT signedJWT = SignedJWT.parse(getToken(session));
-            return (Long) signedJWT.getJWTClaimsSet().getClaim("user_id");
-        } catch (ParseException e) {
+            var jwt = jwtDecoder.decode(getToken(session));
+            return (Long) jwt.getClaim("userId");
+        } catch (JwtException e) {
             throw new RuntimeException("Ошибка при разборе токена", e);
+        }
+    }
+
+    public void send(String topic, String message) {
+        var users = subscribedSessions.get(topic);
+        if (users == null || users.isEmpty()) {
+            log.warn("No subscribers for topic {}", topic);
+            return;
+        }
+        for (UserSession userSession : users) {
+            WebSocketSession session = userSession.getSession();
+            if (session.isOpen()) {
+                log.info("sending {} to {}", message, userSession.getUserId());
+                try {
+                    session.sendMessage(new TextMessage(message));
+                } catch (IOException e) {
+                    log.error("Error sending message to session {}: {}", session.getId(), e.getMessage());
+                }
+            }
         }
     }
 
@@ -345,15 +380,13 @@ public class SessionManager {
         }
     }
 
-    public void globalSubscribe(Long userId, String subscriptionKey) {
-        String dataKey = "u:" + userId;
-
-        longRedisTemplate.opsForSet().add(dataKey, Long.valueOf(subscriptionKey.split(":")[1]));
-
+    public void subscribeUserToChat(Long userId, String subscriptionKey) {
         if (!sessionsByUser.containsKey(userId)) {
             log.warn("No sessions found for user {}", userId);
             return;
         }
+        longRedisTemplate.opsForSet().add(getUserChatsKey(userId), Long.valueOf(subscriptionKey.split(":")[1]));
+
 
         for (UserSession userSession : sessionsByUser.get(userId)) {
             userSession.getSubscriptions().add(subscriptionKey);

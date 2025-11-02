@@ -1,0 +1,15 @@
+
+.avatar-container-small {
+    width: 32px; 
+    height: 32px;
+}
+
+.avatar-container-large {
+    width: 128px;
+    height: 128px;
+}
+
+.avatar-container-xl {
+    width: 256px;
+    height: 256px;
+}

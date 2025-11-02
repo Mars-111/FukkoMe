@@ -1,18 +1,16 @@
 import { useCallback, useRef, useState } from "react"
 import { uploadFileRequest } from "../internal/api/fileApi";
-import { useAuthContext } from "../../auth/AuthContext";
-
+import { useIdentity } from "../../auth/hooks/useIdentity";
 
 
 export function useUploaderFile() {
     const [state, setState] = useState<"not started" | "in progress" | "completed" | "error">("not started");
     const createdToken = useRef<string | null>(null);
 
-    const { getAccessToken } = useAuthContext();
+    const { accessToken } = useIdentity();
 
     const upload = useCallback((file: File, isPrivate: boolean): Promise<string | null> => {
         setState("in progress");
-        const accessToken = getAccessToken();
         if (!accessToken) {
             setState("error");
             return Promise.resolve(null);
@@ -27,7 +25,7 @@ export function useUploaderFile() {
                 setState("error");
                 return null;
             });
-    }, [getAccessToken]);
+    }, [accessToken]);
 
     return { upload, state, createdToken };
 }

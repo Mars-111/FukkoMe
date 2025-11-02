@@ -1,0 +1,240 @@
+/* ===== Dark Theme Base ===== */
+:root {
+  --bg-900: #0b0f14;
+  --bg-850: #0f141a;
+  --bg-800: #121820;
+  --bg-750: #151c25;
+  --bg-700: #18212c;
+  --bg-650: #1c2632;
+
+  --text-100: #e7edf5;
+  --text-300: #c2c9d2;
+  --text-500: #9aa3ad;
+
+  --accent-500: #5b9cff;   /* primary */
+  --accent-400: #78adff;   /* hover */
+  --accent-600: #3f7fe0;   /* active */
+
+  --success: #2ecc71;
+  --warning: #f1c40f;
+  --danger:  #ff4d4f;
+
+  --border-700: #233142;
+  --shadow-900: 0 10px 30px rgba(0,0,0,0.35);
+  --radius-xl: 16px;
+  --radius-lg: 12px;
+  --radius-md: 10px;
+  --radius-sm: 8px;
+
+  --focus-ring: 0 0 0 3px rgba(91, 156, 255, 0.3);
+}
+
+/* Глобальные базовые стили (если стили изолированы, перенеси их в корневой контейнер компонента) */
+html, body {
+  background: var(--bg-900);
+  color: var(--text-100);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  line-height: 1.5;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Ссылки */
+a {
+  color: var(--text-300);
+  text-decoration: none;
+  transition: color .18s ease, opacity .18s ease;
+}
+a:hover {
+  color: var(--accent-400);
+}
+a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 6px;
+}
+
+/* ===== Layout ===== */
+
+/* Верхняя панель с меню */
+.menu-options {
+  position: sticky; /* остаётся наверху при прокрутке */
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-wrap: wrap; /* позволит переносить элементы */
+  gap: 10px;
+  align-items: center;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, var(--bg-850), rgba(15,20,26,0.85));
+  backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid var(--border-700);
+}
+
+.menu-options a {
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-300);
+  font-weight: 600;
+  letter-spacing: .2px;
+  transition: background .2s ease, color .2s ease, transform .12s ease;
+}
+.menu-options a:hover {
+  background: var(--bg-700);
+  color: var(--text-100);
+  transform: translateY(-1px);
+}
+.menu-options a:active {
+  transform: translateY(0);
+  background: var(--bg-650);
+  color: var(--accent-400);
+}
+
+/* Блок с пользователем */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.user-info .user-avatar {
+  width: 36px;
+  height: 36px;
+  overflow: hidden;
+}
+
+/* Основная рабочая область */
+.action-windows {
+  width: 100%;
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.action-windows h1 {
+  color: var(--text-100);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* ===== Notifications & Errors (правый нижний угол) ===== */
+.notifications,
+.errors {
+  position: fixed;
+  right: 16px;
+  display: grid;
+  gap: 10px;
+  width: min(360px, 92vw);
+  pointer-events: none; /* чтобы клики проходили только по карточкам */
+}
+
+.notifications { bottom: 16px; }
+.errors { bottom: calc(16px + 180px); } /* чуть выше уведомлений; подстрой при необходимости */
+
+/* Карточки внутри (универсальный стиль) */
+.notifications > * ,
+.errors > * {
+  pointer-events: auto;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-800);
+  border: 1px solid var(--border-700);
+  box-shadow: var(--shadow-900);
+  color: var(--text-100);
+  animation: slide-in-up .22s ease-out both;
+}
+
+/* Примеры цветовых акцентов */
+.notifications .success { border-left: 4px solid var(--success); }
+.notifications .warn    { border-left: 4px solid var(--warning); }
+.errors .error          { border-left: 4px solid var(--danger); }
+
+/* Анимация появления снизу */
+@keyframes slide-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Debug Panel (нижний левый угол, минималист) ===== */
+.debug-panel {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  width: min(420px, 95vw);
+  max-height: 45vh;
+  overflow: auto;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-800);
+  border: 1px solid var(--border-700);
+  box-shadow: var(--shadow-900);
+  color: var(--text-100);
+  opacity: .95;
+}
+
+/* ===== Utilities ===== */
+
+/* Маленький аватар, если понадобится общий класс */
+.avatar-small, .avatar-small img, .avatar-small canvas {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  display: block;
+}
+
+/* Тонкие скроллбары в тёмной теме */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-700) transparent;
+}
+*::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--bg-700);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+}
+
+/* Состояния */
+.is-loading {
+  opacity: .7;
+  filter: saturate(.7);
+}
+.is-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 2px rgba(255,77,79,.2);
+}
+
+/* Адаптивность */
+@media (max-width: 720px) {
+  .user-info {
+    padding: 12px;
+  }
+  .menu-options {
+    gap: 6px;
+    padding: 8px 10px;
+    overflow-x: auto;
+  }
+  .action-windows {
+    padding: 12px;
+  }
+  .errors { bottom: calc(16px + 140px); }
+}
+
+/* Предпочтения пользователя (если у кого-то включена светлая тема — всё равно тёмная) */
+@media (prefers-color-scheme: light) {
+  :root {
+    /* можно слегка повысить контраст для светлой ОС */
+    --bg-900: #0a0e13;
+  }
+}

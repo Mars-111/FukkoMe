@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import ru.kors.chatsservice.models.entity.*;
-import ru.kors.chatsservice.models.entity.constants.MessageFlags;
 
 @Service
 @RequiredArgsConstructor
@@ -16,38 +15,20 @@ public class KafkaProducerService {
     private final ObjectMapper objectMapper;
 
 
-public void send(Message message) {
-    try {
-        String jsonMessage = objectMapper.writeValueAsString(message);
-        log.info("Message sent to chat-messages: " + jsonMessage);
-        kafkaTemplate.send("chat-messages", message.getChat().getId(), jsonMessage);
-    } catch (Exception e) {
-        log.error("Ошибка при отправке сообщения в Kafka", e);
+    public void send(Message message) {
+        try {
+            String jsonMessage = objectMapper.writeValueAsString(message);
+            log.info("Message sent to chat-messages: " + jsonMessage);
+            kafkaTemplate.send("chat-messages", message.getChat().getId(), jsonMessage);
+        } catch (Exception e) {
+            log.error("Ошибка при отправке сообщения в Kafka", e);
+        }
     }
-}
 
     public void send(ChatEvent event) {
         try {
             String jsonEvent = objectMapper.writeValueAsString(event);
             kafkaTemplate.send("chat-events", event.getChat().getId(), jsonEvent);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void send(UserEvent event) {
-        try {
-            String jsonEvent = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send("user-events", event.getUser().getId(), jsonEvent);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void sendPersonal(UserEvent event) {
-        try {
-            String jsonEvent = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send("personal-events", event.getUser().getId(), jsonEvent);
         } catch (Exception e) {
             e.printStackTrace();
         }

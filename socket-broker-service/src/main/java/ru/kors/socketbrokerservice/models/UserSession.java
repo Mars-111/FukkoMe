@@ -14,7 +14,6 @@ public final class UserSession {
     private final WebSocketSession session;
     private final Set<String> subscriptions;
     private volatile long lastPongTime;
-    private volatile boolean online;
 
     public UserSession(Long userId, WebSocketSession session) {
         this.userId = userId;

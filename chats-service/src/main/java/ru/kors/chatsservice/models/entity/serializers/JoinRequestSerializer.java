@@ -12,9 +12,9 @@ public class JoinRequestSerializer  extends JsonSerializer<JoinRequest> {
     public void serialize(JoinRequest joinRequest, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
         gen.writeStartObject();
         gen.writeNumberField("id", joinRequest.getId());
+        gen.writeNumberField("user_id", joinRequest.getUserId());
         gen.writeNumberField("chat_id", joinRequest.getChat().getId());
-        gen.writeNumberField("user_id", joinRequest.getUser().getId());
-        gen.writeObjectField("timestamp", joinRequest.getTimestamp());
+        gen.writeNumberField("timestamp", joinRequest.getTimestamp().toEpochMilli());
         gen.writeEndObject();
     }
 }

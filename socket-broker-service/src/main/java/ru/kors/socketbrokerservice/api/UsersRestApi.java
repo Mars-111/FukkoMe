@@ -30,42 +30,6 @@ public class UsersRestApi {
             new ParameterizedTypeReference<>() {
             };
 
-    public Optional<User> findById(Long id) {
-        try {
-            return Optional.ofNullable(restClient.get()
-                    .uri(baseUrl + "/" + id)
-                    .retrieve()
-                    .body(User.class));
-        } catch (RestClientException e) {
-            log.error("Error fetching user by ID: {}", id, e);
-            return Optional.empty();
-        }
-    }
-
-    public Optional<User> findByKeycloakId(String keycloakId) {
-        try {
-            return Optional.ofNullable(restClient.get()
-                    .uri(baseUrl + "/keycloak/" + keycloakId)
-                    .retrieve()
-                    .body(User.class));
-        } catch (RestClientException e) {
-            log.error("Error fetching user by Keycloak ID: {}", keycloakId, e);
-            return Optional.empty();
-        }
-    }
-
-    public Set<Chat> getUserChats(Long userId) {
-        try {
-            return restClient.get()
-                    .uri(baseUrl + "/" + userId + "/chats")
-                    .retrieve()
-                    .body(CHAT_LIST_TYPE_REFERENCE);
-        } catch (RestClientException e) {
-            log.error("Error fetching chats for user ID: {}", userId, e);
-            return Set.of();
-        }
-    }
-
     public Set<Long> getUserChatsIds(Long userId) {
         try {
             return restClient.get()

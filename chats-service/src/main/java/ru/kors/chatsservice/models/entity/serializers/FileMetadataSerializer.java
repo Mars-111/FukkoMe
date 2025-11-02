@@ -13,10 +13,12 @@ public class FileMetadataSerializer extends JsonSerializer<FileMetadata> {
     public void serialize(FileMetadata fileMetadata, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
         gen.writeStartObject();
         gen.writeNumberField("file_id", fileMetadata.getFileId());
-        gen.writeNumberField("message_id", fileMetadata.getMessage().getId());
-        gen.writeNumberField("size", fileMetadata.getSize());
+        if (fileMetadata.getMessage().getId() != null) {
+            gen.writeNumberField("message_id", fileMetadata.getMessage().getId());
+        }
         gen.writeStringField("extension", fileMetadata.getExtension());
         gen.writeStringField("filename", fileMetadata.getFilename());
+        gen.writeNumberField("size", fileMetadata.getSize());
 
         if (fileMetadata.getHeight() != null) {
             gen.writeNumberField("height", fileMetadata.getHeight());

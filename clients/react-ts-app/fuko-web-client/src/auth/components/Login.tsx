@@ -1,32 +1,32 @@
-import { useSearchParams, Navigate } from 'react-router-dom';
-import { useState } from "react";
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
 import { useIdentity } from '../hooks/useIdentity';
+import { error } from 'console';
 
 export function Login() {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     
     const identity = useIdentity();
     const [awaitAuthorization, setAwaitAuthorization] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const clientIdParam = searchParams.get('clientId');
-    const grantTypeParam = searchParams.get('grantType');
-    
-    if (clientIdParam) {
-        //Времено недступно
-    }
+    // const clientIdParam = searchParams.get('clientId');
+    // const grantTypeParam = searchParams.get('grantType');
 
-    if (grantTypeParam) {
-        // if (!isValidGrantType(grantTypeParam)) {
-        //     throw new Error(`Invalid grant type: ${grantTypeParam}`);
-        // }
-        // identity.setGrantType(grantTypeParam);
-        //Временно недоступно
-    }
+    useEffect(() => {
+        console.log("Ререндер state: " + identity.state)
+        if (identity.state === "authenticated") {
+            const redirectUrl = searchParams.get('redirectUrl') || '/';
+            navigate(redirectUrl, { replace: true });
+        }
+        else if (identity.state === "error_authenticated") {
+            setAwaitAuthorization(false);
+            setErrorMessage("Login failed.");
+        }
 
-    if (identity.authenticated === "authenticated") {
-        const redirectUrl = searchParams.get('redirectUrl') || '/';
-        return <Navigate to={redirectUrl} replace />;
-    }
+
+    }, [identity.state]);
 
     const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -34,6 +34,8 @@ export function Login() {
         const username = formData.get('username') as string;
         const password = formData.get('password') as string;
         const redirectUrl = searchParams.get('redirectUrl') || '/';
+
+        setAwaitAuthorization(true);
 
         identity.authenticate({
             username,
@@ -45,11 +47,11 @@ export function Login() {
         }).catch((error) => {
             console.error("Authorization failed:", error);
             setAwaitAuthorization(false);
-            return <Navigate to="/errors/authorization-failed" />;
+            setErrorMessage("Login failed. Please check your credentials and try again.");
         });
-
-        setAwaitAuthorization(true);
     };
+
+    console.log("redirect url: " + searchParams.get('redirectUrl') || '/');
 
     return (
         <div>
@@ -66,6 +68,11 @@ export function Login() {
                 {awaitAuthorization && <p>Awaiting authorization...</p>}
                 {!awaitAuthorization && <button type="submit">Login</button>}
             </form>
+            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+            Login state: {identity.state}
+            <p>
+                Don't have an account? <Link to="/register">Register</Link>
+            </p>
         </div>
     );
 }

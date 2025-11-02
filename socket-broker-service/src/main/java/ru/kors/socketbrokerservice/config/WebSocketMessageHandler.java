@@ -21,28 +21,15 @@ public class WebSocketMessageHandler {
         UserSession userSession = sessionManager.getSessionById(session.getId());
 
         switch (messagePayload.charAt(0)) {
-            case 'G': //Global subscription
-                sessionManager.localSubscribe(messagePayload, userSession);
-                log.info("User {} subscribed to {}", userSession.getUserId(), messagePayload);
+            case 'S': //Local subscription
+                sessionManager.localSubscribe(messagePayload.substring(1), userSession);
+                log.info("User {} subscribed to {}", userSession.getUserId(), messagePayload.substring(1));
+                log.info("User subscriptions: {}", userSession.getSubscriptions());
                 break;
-            case 'U': //К примеру UG12 -> отписываемся от G12
+            case 'U': //К примеру U12 -> отписываемся от 12
                 sessionManager.unLocalSubscribe(messagePayload.substring(1), userSession);
                 log.info("User {} unsubscribed from {}", userSession.getUserId(), messagePayload.substring(1));
                 break; //UnSub
-            case 'T': //Status online
-                switch (messagePayload.charAt(1)) {
-                    case '0': //Status
-                        userSession.setOnline(false);
-                        log.info("User {} is offline", userSession.getUserId());
-                        break; //Status
-                    case '1': //Status
-                        userSession.setOnline(true);
-                        log.info("User {} is online", userSession.getUserId());
-                        break; //Status
-                    default:
-                        log.warn("Unknown message type: {}", messagePayload);
-                }
-                break; //Status
             default:
                 log.warn("Unknown message type: {}", messagePayload);
         }

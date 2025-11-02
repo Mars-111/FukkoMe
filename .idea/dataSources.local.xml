@@ -1,24 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal" created-in="IU-243.22562.218">
-    <data-source name="chats@localhost" uuid="863f7b7d-404e-4ca0-b992-65697a220f6e">
-      <database-info product="PostgreSQL" version="16.6 (Debian 16.6-1.pgdg120+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="16.6" exact-driver-version="42.7">
-        <identifier-quote-string>&quot;</identifier-quote-string>
-      </database-info>
-      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
-      <user-name>admin</user-name>
-      <schema-mapping>
-        <introspection-scope>
-          <node negative="1">
-            <node kind="database" qname="@">
-              <node kind="schema" qname="@" />
-            </node>
-            <node kind="database" qname="chats" />
-          </node>
-        </introspection-scope>
-      </schema-mapping>
-    </data-source>
-    <data-source name="store_media_db@localhost" uuid="af6e78ab-5bb3-4c8b-8c74-2edaf6796818">
+    <data-source name="identity@localhost" uuid="7574aa56-674a-4705-a0a4-7d97e30477d4">
       <database-info product="PostgreSQL" version="16.6 (Debian 16.6-1.pgdg120+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="16.6" exact-driver-version="42.7">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>
@@ -32,40 +15,26 @@
         </introspection-scope>
       </schema-mapping>
     </data-source>
-    <data-source name="order_db@localhost" uuid="48509f5b-d771-4435-a2d2-80109759e7de">
-      <database-info product="PostgreSQL" version="16.6 (Debian 16.6-1.pgdg120+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="16.6" exact-driver-version="42.7">
-        <identifier-quote-string>&quot;</identifier-quote-string>
-      </database-info>
-      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
-      <user-name>admin</user-name>
-      <schema-mapping>
-        <introspection-scope>
-          <node kind="database" qname="@">
-            <node kind="schema" qname="@" />
-          </node>
-        </introspection-scope>
-      </schema-mapping>
-    </data-source>
-    <data-source name="identity@localhost" uuid="77dd1a25-a48f-4762-8230-2b91f532b106">
-      <database-info product="PostgreSQL" version="16.6 (Debian 16.6-1.pgdg120+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="16.6" exact-driver-version="42.7">
-        <identifier-quote-string>&quot;</identifier-quote-string>
-      </database-info>
-      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
-      <user-name>admin</user-name>
-      <schema-mapping>
-        <introspection-scope>
-          <node kind="database" qname="@">
-            <node kind="schema" qname="@" />
-          </node>
-        </introspection-scope>
-      </schema-mapping>
-    </data-source>
-    <data-source name="0@localhost" uuid="00b42053-b036-43b0-ae24-54eecb87ce56">
-      <database-info product="Redis Standalone" version="7.4.2" jdbc-version="4.2" driver-name="Redis JDBC Driver" driver-version="1.5" dbms="REDIS" exact-version="7.4.2" exact-driver-version="1.5" />
+    <data-source name="0@localhost" uuid="77c22023-5585-4dcc-8dec-3279fcfef313">
+      <database-info product="Redis Standalone" version="7.2.7" jdbc-version="4.2" driver-name="Redis JDBC Driver" driver-version="1.5" dbms="REDIS" exact-version="7.2.7" exact-driver-version="1.5" />
       <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed" />
       <schema-mapping>
         <introspection-scope>
           <node kind="schema" qname="@" />
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="chats@localhost" uuid="62fedaa5-0e37-4f39-94a2-2145580d18cb">
+      <database-info product="PostgreSQL" version="16.6 (Debian 16.6-1.pgdg120+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="16.6" exact-driver-version="42.7">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <user-name>admin</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="database" qname="@">
+            <node kind="schema" qname="@" />
+          </node>
         </introspection-scope>
       </schema-mapping>
     </data-source>

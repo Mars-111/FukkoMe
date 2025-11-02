@@ -5,10 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.kors.chatsservice.exceptions.BadRequestException;
-import ru.kors.chatsservice.exceptions.DoesNotHaveAccessException;
-import ru.kors.chatsservice.exceptions.NotAuthException;
-import ru.kors.chatsservice.exceptions.NotFoundEntityException;
+import ru.kors.chatsservice.exceptions.*;
 
 @ControllerAdvice
 @Slf4j
@@ -41,6 +38,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<String> handleConflictException(ConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ex.getMessage());
     }
 }

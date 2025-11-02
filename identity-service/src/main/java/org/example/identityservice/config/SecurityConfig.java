@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.identityservice.filters.AccessTokenFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -42,9 +43,11 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/.well-known/jwks.json").permitAll()
                     .requestMatchers("/api/register").permitAll()
+                    .requestMatchers("/api/authenticate").permitAll()
                     .requestMatchers("/api/authorize", "/api/token", "/api/refresh").permitAll()
-                    .requestMatchers("/api/test").authenticated()
-                    .anyRequest().permitAll())
+                    .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
+                    .requestMatchers("/api/test").permitAll()
+                    .anyRequest().authenticated())
             .addFilterBefore(accessTokenFilter, UsernamePasswordAuthenticationFilter.class)
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)

@@ -7,23 +7,22 @@ import ru.kors.chatsservice.models.entity.Message;
 
 import java.io.IOException;
 
-public class    MessageSerializer extends JsonSerializer<Message> {
+public class MessageSerializer extends JsonSerializer<Message> {
 
     @Override
     public void serialize(Message message, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
-        writeMessage(gen, message, false);
+        writeMessage(gen, message, true);
         gen.writeEndObject();
     }
 
     private void writeMessage(JsonGenerator gen, Message message, boolean nested) throws IOException {
+        gen.writeStartObject();
         gen.writeNumberField("id", message.getId());
         gen.writeNumberField("timeline_id", message.getTimelineId());
-        gen.writeStringField("type", message.getType());
         gen.writeNumberField("flags", message.getFlags());
         gen.writeNumberField("chat_id", message.getChat().getId());
-        gen.writeNumberField("sender_id", message.getSender().getId());
-        gen.writeObjectField("timestamp", message.getTimestamp());
+        gen.writeNumberField("sender_id", message.getSenderId());
 
         if (message.getContent() != null) {
             gen.writeStringField("content", message.getContent());
@@ -39,6 +38,8 @@ public class    MessageSerializer extends JsonSerializer<Message> {
             }
             gen.writeEndArray();
         }
+        gen.writeNumberField("timestamp", message.getTimestamp().toEpochMilli());
+        gen.writeEndObject();
     }
 
     private void writeReplyOrForward(JsonGenerator gen, String fieldName, Message nestedMessage, boolean parentIsNested) throws IOException {
@@ -46,7 +47,7 @@ public class    MessageSerializer extends JsonSerializer<Message> {
 
         if (!parentIsNested) {
             gen.writeObjectFieldStart(fieldName);
-            writeMessage(gen, nestedMessage, true);
+            writeMessage(gen, nestedMessage, false);
             gen.writeEndObject();
         } else {
             gen.writeNumberField(fieldName + "_id", nestedMessage.getId());

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 @Entity
 @Table(name = "users",
@@ -32,8 +34,17 @@ public class User {
 
     private Integer version = 0;
 
-    @Column(name="avatar_id")
-    private Long avatarId;
+    @Column(name="original_avatar_id")
+    private Long originalAvatarId;
+
+    @Column(name = "small_avatar_id")
+    private Long smallAvatarId;
+
+    @Column(name = "large_avatar_id")
+    private Long largeAvatarId;
+
+    @Column(name = "fullscreen_avatar_id")
+    private Long fullscreenAvatarId;
 
     @Column(name = "created_at")
     private Instant createdAt;

@@ -7,8 +7,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import ru.kors.chatsservice.models.entity.Chat;
-import ru.kors.chatsservice.repositories.UserRepository;
-import ru.kors.chatsservice.services.UserService;
+import ru.kors.chatsservice.models.entity.enums.ChatType;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -16,8 +15,6 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class ChatDeserializer extends JsonDeserializer<Chat> {
 
-    private final UserService userService;
-    private final UserRepository userRepository;
 
     @Override
     public Chat deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
@@ -29,6 +26,10 @@ public class ChatDeserializer extends JsonDeserializer<Chat> {
             chat.setId(node.get("id").asLong());
         }
 
+        if (node.has("version")) {
+            chat.setVersion(node.get("version").asInt());
+        }
+
         if (node.has("tag")) {
             chat.setTag(node.get("tag").asText());
         }
@@ -37,12 +38,16 @@ public class ChatDeserializer extends JsonDeserializer<Chat> {
             chat.setName(node.get("name").asText());
         }
 
+        if (node.has("description")) {
+            chat.setDescription(node.get("description").asText());
+        }
+
         if (node.has("type")) {
-            chat.setType(node.get("type").asText());
+            chat.setType(ChatType.fromString(node.get("type").asText()));
         }
 
         if (node.has("owner_id")) {
-            chat.setOwner(userRepository.getReferenceById(node.get("owner_id").asLong()));
+            chat.setOwnerId(node.get("owner_id").asLong());
         }
 
         if (node.has("created_at")) {

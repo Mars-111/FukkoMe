@@ -23,7 +23,7 @@ public class FileMetadata {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "message_id")
-    private Message message; //Можно создавать без сообщения
+    private Message message;
 
     @Column(nullable = false)
     private String extension;
@@ -44,10 +44,8 @@ public class FileMetadata {
         this.extension = jwt.extension();
         this.size = jwt.size();
         this.filename = jwt.filename();
-        if (jwt.metadata() != null) {
-            this.height = jwt.metadata().height();
-            this.width = jwt.metadata().width();
-        }
+        this.height = jwt.height();
+        this.width = jwt.width();
     }
 
 }

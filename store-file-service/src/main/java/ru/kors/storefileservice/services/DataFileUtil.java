@@ -91,7 +91,6 @@ public class DataFileUtil {
 
 
     private void processMetadata(DataBuffer dataBuffer) {
-        System.out.println("kkk");
         if (metadataProcessedEnd.get() || !hasDimensions) {
             log.debug("Metadata processing already completed or not required, skipping");
             return;

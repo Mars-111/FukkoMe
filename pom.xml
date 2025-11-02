@@ -15,6 +15,7 @@
     <module>timeline-master-service</module>
     <module>store-file-service</module>
     <module>identity-service</module>
+    <module>status-service</module>
   </modules>
 
   <properties>

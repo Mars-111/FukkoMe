@@ -15,6 +15,7 @@
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
     "keycloak-js": "^26.2.0",
+    "lucide-react": "^0.544.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-easy-crop": "^5.5.0",

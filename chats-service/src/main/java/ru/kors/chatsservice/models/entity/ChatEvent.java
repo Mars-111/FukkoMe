@@ -12,6 +12,7 @@ import lombok.Setter;
 
 import org.hibernate.type.SqlTypes;
 import ru.kors.chatsservice.models.entity.deserializers.ChatEventDeserializer;
+import ru.kors.chatsservice.models.entity.enums.ChatEventType;
 import ru.kors.chatsservice.models.entity.serializers.ChatEventSerializer;
 
 import java.time.Instant;
@@ -21,7 +22,7 @@ import java.time.Instant;
 @Entity
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Table(name = "chats_events", indexes = {
-        @Index(name = "idx_events_type", columnList = "type"),
+        @Index(name = "idx_chat_events_type", columnList = "type"),
         @Index(name = "idx_chat_events_chat", columnList = "chat_id")
 })
 @JsonSerialize(using = ChatEventSerializer.class)
@@ -33,14 +34,12 @@ public class ChatEvent {
     private Long id;
 
     @Column(name = "timeline_id", nullable = false)
-    private Integer timelineId; // Порядковый номер события в чате, для сортировки
+    private Integer timelineId;
 
-    // Можно оставить поле type для дополнительной информации или убрать,
-    // если дисриминатор полностью покрывает назначение.
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private String type;
+    private ChatEventType type;
 
-    //@Convert(converter = JsonNodeConverter.class)
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "data", columnDefinition = "jsonb")
     private JsonNode data;
@@ -48,7 +47,7 @@ public class ChatEvent {
     @Column(name = "timestamp", nullable = false, updatable = false)
     private Instant timestamp;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 

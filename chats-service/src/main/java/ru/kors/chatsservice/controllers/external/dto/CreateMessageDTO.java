@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public record CreateMessageDTO(
-        String type,
         String content,
         @JsonProperty("chat_id")
         Long chatId,
@@ -17,6 +16,6 @@ public record CreateMessageDTO(
         Long forwardedFromId,
         @JsonProperty("flags")
         Integer flags
-        )
+)
 {
 }

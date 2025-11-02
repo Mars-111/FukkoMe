@@ -10,6 +10,7 @@ import ru.kors.chatsservice.models.entity.deserializers.JoinRequestDeserializer;
 import ru.kors.chatsservice.models.entity.serializers.ChatSerializer;
 import ru.kors.chatsservice.models.entity.serializers.JoinRequestSerializer;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,19 +25,18 @@ public class JoinRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @ManyToOne
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 
     @Column(name = "timestamp", nullable = false, updatable = false)
-    private LocalDateTime timestamp;
+    private Instant timestamp;
 
     @PrePersist
     private void setTimestamp() {
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = Instant.now();
     }
 }

@@ -26,7 +26,7 @@ public class SecurityBeans {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/internal/**").permitAll()
                         .anyRequest().permitAll()
                 )

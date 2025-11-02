@@ -7,9 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.kors.chatsservice.models.entity.deserializers.ChatDeserializer;
+import ru.kors.chatsservice.models.entity.enums.ChatType;
 import ru.kors.chatsservice.models.entity.serializers.ChatSerializer;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,41 +28,45 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
+    private Integer version = 0;
+
+    @Column(unique = true)
     private String tag;
 
     @Column(nullable = false)
     private String name;
 
-    //TODO: Добавить тип чата (групповой, приватный, личка и т.д.)
-    private String type;
+    private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ChatType type;
+
     @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
+    private Long ownerId;
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @OrderBy("timestamp ASC") // Сохраняем порядок по времени
     private List<Message> messages;
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @OrderBy("timestamp ASC") // Сохраняем порядок по времени
     private List<ChatEvent> events;
 
-    @ManyToMany(mappedBy = "chats", fetch = FetchType.LAZY)
-    private Set<User> users;
+    @ElementCollection
+    @CollectionTable(
+            name = "chat_users",
+            joinColumns = @JoinColumn(name = "chat_id")
+    )
+    @Column(name = "user_id")
+    private Set<Long> userIds = new HashSet<>();
 
     //Запросы на вступление в чат. Он должен быть null если privateChat = false.
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @OrderBy("timestamp ASC") // Сохраняем порядок по времени
     private List<JoinRequest> joinRequests;
 
     //Пользователи с ролями в чате
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<ChatRole> chatRoles;
-
-    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<ChatMetadata> metadata;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -70,10 +76,10 @@ public class Chat {
         this.createdAt = Instant.now();
     }
 
-    public Chat(String tag, String name, String type, User owner) {
+    public Chat(String tag, String name, ChatType type, Long ownerId) {
         this.tag = tag;
         this.name = name;
         this.type = type;
-        this.owner = owner;
+        this.ownerId = ownerId;
     }
 }

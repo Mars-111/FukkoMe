@@ -7,7 +7,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import ru.kors.chatsservice.repositories.TimelineRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -17,7 +16,6 @@ import java.util.Base64;
 @Slf4j
 public class TimelineService {
 
-    private final TimelineRepository timelineRepository;
     private final RestClient restClient = RestClient.builder().build();;
 
     @Value("${master.timeline.url}")

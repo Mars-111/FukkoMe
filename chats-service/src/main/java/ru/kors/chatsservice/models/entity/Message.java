@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import ru.kors.chatsservice.models.entity.deserializers.MessageDeserializer;
 import ru.kors.chatsservice.models.entity.serializers.MessageSerializer;
 
@@ -20,11 +19,10 @@ import java.util.List;
 @Setter
 @Table(name = "messages", indexes = {
         @Index(name = "idx_messages_chat_id", columnList = "chatId"),
-        @Index(name = "idx_messages_user_id", columnList = "sender_id")
+        @Index(name = "idx_messages_sender_id", columnList = "sender_id")
 })
 @JsonSerialize(using = MessageSerializer.class)
 @JsonDeserialize(using = MessageDeserializer.class)
-@Slf4j
 public class Message {
 
     @Id
@@ -32,31 +30,27 @@ public class Message {
     private Long id;
 
     @Column(name = "timeline_id", nullable = false)
-    private Integer timelineId; //порядковый номер сообщения в чате, для сортировки сообщений в чате
+    private Integer timelineId;
 
-    private Integer flags = 0; //для разных флагов (например, прочитано/не прочитано, закреп и т.д.)
+    private Integer flags = 0; //для разных флагов (например, закреп, удалено и т.д.)
 
-    @Column(nullable = false)
-    private String type;
-
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 
-    @JoinColumn(name = "sender_id", nullable = false)
-    @ManyToOne(fetch = FetchType.EAGER)
-    private User sender;
+    @Column(name = "sender_id", nullable = false)
+    private Long senderId;
 
     private String content;
 
     @OneToMany(mappedBy = "message", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FileMetadata> fileList =  new ArrayList<>(); //List что бы сохранять порядок медиафайлов
 
-    @ManyToOne(fetch = FetchType.EAGER) // связь с родительским сообщением
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reply_to_id")
-    private Message replyTo; // новое поле для ответа на сообщение
+    private Message replyTo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "forwarded_id")
     private Message forwardedFrom;
 
@@ -70,8 +64,8 @@ public class Message {
 
 
     public void addFile(FileMetadata file) {
-        fileList.add(file);
         file.setMessage(this);
+        fileList.add(file); //!!!! ПОМЕНЯЛ МЕСТАМИ
     }
 
 }

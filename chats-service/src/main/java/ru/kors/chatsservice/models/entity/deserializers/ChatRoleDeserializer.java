@@ -6,17 +6,15 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
+import ru.kors.chatsservice.models.entity.Chat;
 import ru.kors.chatsservice.models.entity.ChatRole;
-import ru.kors.chatsservice.services.ChatRoleService;
-import ru.kors.chatsservice.services.ChatService;
-import ru.kors.chatsservice.services.UserService;
+import ru.kors.chatsservice.repositories.ChatRepository;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor
 public class ChatRoleDeserializer extends JsonDeserializer<ChatRole> {
-    private final UserService userService;
-    private final ChatService chatService;
+    private final ChatRepository chatRepository;
 
     @Override
     public ChatRole deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
@@ -28,16 +26,25 @@ public class ChatRoleDeserializer extends JsonDeserializer<ChatRole> {
             chatRole.setId(node.get("id").asLong());
         }
 
-        if (node.has("user_id")) {
-            chatRole.setUser(userService.findById(node.get("user_id").asLong()));
-        }
-
         if (node.has("chat_id")) {
-            chatRole.setChat(chatService.findById(node.get("chat_id").asLong()));
+            Chat chat = chatRepository.getReferenceById(node.get("chat_id").asLong());
+            chatRole.setChat(chat);
         }
 
-        if (node.has("role")) {
-            chatRole.setRole(node.get("role").asText());
+        if (node.has("name")) {
+            chatRole.setName(node.get("name").asText());
+        }
+
+        if (node.has("version")) {
+            chatRole.setVersion(node.get("version").asInt());
+        }
+
+        if (node.has("rank")) {
+            chatRole.setRank(node.get("rank").asInt());
+        }
+
+        if (node.has("access_flags")) {
+            chatRole.setAccessFlags(node.get("access_flags").asLong());
         }
 
         return chatRole;

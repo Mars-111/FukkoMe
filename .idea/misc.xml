@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/keycloak-custom-registration-spi/pom.xml" />
         <option value="$PROJECT_DIR$/keycloak-add-tag/pom.xml" />
         <option value="$PROJECT_DIR$/store-media-service/pom.xml" />
+        <option value="$PROJECT_DIR$/status-service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

@@ -15,7 +15,8 @@ public class ChatEventSerializer extends JsonSerializer<ChatEvent> {
         if (chatEvent.getId() != null) {
             jsonGenerator.writeNumberField("id", chatEvent.getId());
         }
-        jsonGenerator.writeStringField("type", chatEvent.getType());
+        jsonGenerator.writeNumberField("timeline_id", chatEvent.getTimelineId());
+        jsonGenerator.writeStringField("type", chatEvent.getType().name());
         jsonGenerator.writeNumberField("chat_id", chatEvent.getChat().getId());
 
         if (chatEvent.getData() != null) {
@@ -24,7 +25,7 @@ public class ChatEventSerializer extends JsonSerializer<ChatEvent> {
         }
 
         if (chatEvent.getTimestamp() != null) {
-            jsonGenerator.writeStringField("timestamp", chatEvent.getTimestamp().toString());
+            jsonGenerator.writeNumberField("timestamp", chatEvent.getTimestamp().toEpochMilli());
         }
 
         jsonGenerator.writeEndObject();

@@ -1,0 +1,28 @@
+.entity-cell {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.entity-cell:hover {
+  background-color: rgba(255, 255, 255, 0.05); /* лёгкий hover, как у телеграма */
+}
+
+.entity-cell:active {
+  background-color: rgba(255, 255, 255, 0.1); /* тап */
+}
+
+.entity-cell-name {
+  margin-left: 12px;
+  font-size: 15px;
+  color: #e5e7eb; /* gray-200 */
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

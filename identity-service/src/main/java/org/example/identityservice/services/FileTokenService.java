@@ -63,7 +63,7 @@ public class FileTokenService {
         return claims.get("userId", Long.class).equals(userCreated);
     }
 
-    public Long verifyUserCreatedAndGetFileIdByCreatedFileToken(String token, Long userCreater) {
+    public Claims verifyUserCreatedAndGetClaims(String token, Long userCreator) {
         Claims claims;
         try {
             claims = Jwts.parser()
@@ -75,10 +75,29 @@ public class FileTokenService {
             log.warn("Invalid or expired token: {}", e.getMessage());
             return null;
         }
-        if (!claims.get("userId", Long.class).equals(userCreater)) {
-            log.warn("Current user not equals user created of token. {} != {}", userCreater, claims.get("user_created", Long.class));
+        if (!claims.get("userId", Long.class).equals(userCreator)) {
+            log.warn("Current user not equals user created of token. {} != {}", userCreator, claims.get("user_created", Long.class));
             return null;
         }
-        return claims.get("fileId", Long.class);
+        return claims;
     }
+
+//    public Long verifyUserCreatedAndGetFileIdByCreatedFileToken(String token, Long userCreater) {
+//        Claims claims;
+//        try {
+//            claims = Jwts.parser()
+//                    .verifyWith(secretKey)
+//                    .build()
+//                    .parseSignedClaims(token)
+//                    .getPayload();
+//        } catch (Exception e) {
+//            log.warn("Invalid or expired token: {}", e.getMessage());
+//            return null;
+//        }
+//        if (!claims.get("userId", Long.class).equals(userCreater)) {
+//            log.warn("Current user not equals user created of token. {} != {}", userCreater, claims.get("user_created", Long.class));
+//            return null;
+//        }
+//        return claims.get("fileId", Long.class);
+//    }
 }

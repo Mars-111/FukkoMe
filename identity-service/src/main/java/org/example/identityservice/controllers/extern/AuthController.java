@@ -11,7 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.identityservice.controllers.extern.dto.AuthenticateRequestDTO;
 import org.example.identityservice.exeptions.NotSuchUserException;
 import org.example.identityservice.exeptions.NotAuthException;
-import org.example.identityservice.services.authenticatedUserService;
+import org.example.identityservice.repositories.UserRepository;
+import org.example.identityservice.services.AuthenticatedUserService;
 import org.example.identityservice.utils.PCKEUtil;
 import org.example.identityservice.factories.JWTFactory;
 import org.example.identityservice.models.AccessToken;
@@ -47,7 +48,8 @@ public class AuthController {
 
     private final ClientCacheService clientCacheService;
     private final UserService userService;
-    private final authenticatedUserService authenticatedUserService;
+    private final AuthenticatedUserService authenticatedUserService;
+    private final UserRepository userRepository;
     @Value("${jwt.allowed-redirect-uri}")
     private List<String> allowedRedirectUris;
     @Value("${jwt.refresh.live-time}")
@@ -213,6 +215,10 @@ public class AuthController {
         Instant exp = refreshTokenEntity.getExpiresAt();
         if (exp == null || exp.isBefore(Instant.now())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (!userRepository.isEnabled(refreshTokenEntity.getUserId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not enabled");
         }
 
         AccessToken accessTokenEntity = new AccessToken(refreshJwt);

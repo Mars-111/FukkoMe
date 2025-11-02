@@ -1,7 +1,6 @@
 package ru.kors.chatsservice.services;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -34,8 +33,6 @@ public class FileJWTService {
     @Value("${file-service.release.jwt.issuer}")
     private String issuer;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     public String generateFileAccessToken(Set<Long> fileIds, Long userId, long expirationTimeInSeconds) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTimeInSeconds * 1000);
@@ -51,7 +48,7 @@ public class FileJWTService {
                 .compact();
     }
 
-    public AccessFileJWT convertAccessFileJWT(String token) {
+    public AccessFileJWT parseAccessUseCreatedFileJWT(String token) {
         Claims claims;
         try {
             claims = Jwts.parser()
@@ -63,17 +60,15 @@ public class FileJWTService {
             throw new BadFileJWT("Invalid or expired token: " + e);
         }
 
-        Object fileMetadataRaw = claims.get("file_metadata");
-        AccessFileJWT.FileMetadata metadata = objectMapper.convertValue(fileMetadataRaw, AccessFileJWT.FileMetadata.class);
 
-
-        return new AccessFileJWT(  claims.get("fileId", Number.class).longValue(),
+        return new AccessFileJWT(   claims.get("fileId", Number.class).longValue(),
                                     claims.get("userId", Number.class).longValue(),
                                     claims.getSubject(),
-                                    claims.get("size", Number.class).longValue(),
-                                    claims.get("extension", String.class),
                                     claims.get("filename", String.class),
-                                    metadata
+                                    claims.get("extension", String.class),
+                                    claims.get("size", Number.class).longValue(),
+                                    claims.get("width", Number.class).intValue(),
+                                    claims.get("height", Number.class).intValue()
         );
     }
 

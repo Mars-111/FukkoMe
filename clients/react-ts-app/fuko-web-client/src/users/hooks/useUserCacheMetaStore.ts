@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type State = {
+export type StateUser = {
     /*
         Список id пользователей, которых мы уже синхронизировали после входа.
         Если нету в списке - необходимо сверить версии с бекендом и при необхлдимости обновить пользователя.
@@ -24,10 +24,15 @@ export type State = {
     */
     requiredUserUpdateMap: Map<number, boolean>;
     setRequiredUserUpdate: (userId: number, required: boolean) => void;
+    // /*
+    //     Последняя проверка версии
+    // */
+    // lastCheckUserVersionMap: Map<number, number>;
+    // setLastCheckUserVersion: (userId: number, instant?: number) => void;
 };
 
 
-export const useUserCacheMetaStore = create<State>((set, get) => ({
+export const useUserCacheMetaStore = create<StateUser>((set, get) => ({
     syncUserIdsAfterOpenSet: new Set<number>(),
     addSyncUserIdsAfterOpen: (userId: number) => {
         const currentSet = new Set(get().syncUserIdsAfterOpenSet);
@@ -52,5 +57,13 @@ export const useUserCacheMetaStore = create<State>((set, get) => ({
         const currentMap = new Map(get().requiredUserUpdateMap);
         currentMap.set(userId, reqired);
         set({ requiredUserUpdateMap: currentMap });
-    }
+    },
+    // lastCheckUserVersionMap: new Map(),
+    // setLastCheckUserVersion: (userId: number, instant = Date.now()) => {
+    //     set((state) => {
+    //         const map = new Map(state.lastCheckUserVersionMap);
+    //         map.set(userId, instant);
+    //         return { lastCheckUserVersionMap: map };
+    //     });
+    // }
 }));

@@ -12,11 +12,13 @@ public class ChatSerializer extends JsonSerializer<Chat> {
     public void serialize(Chat chat, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
         gen.writeNumberField("id", chat.getId());
+        gen.writeNumberField("version", chat.getVersion());
         gen.writeStringField("tag", chat.getTag());
         gen.writeStringField("name", chat.getName());
-        gen.writeStringField("type", chat.getType());
-        gen.writeObjectField("owner_id", chat.getOwner().getId());
-        gen.writeObjectField("created_at", chat.getCreatedAt());
+        gen.writeStringField("description", chat.getDescription());
+        gen.writeStringField("type", chat.getType().name());
+        gen.writeNumberField("owner_id", chat.getOwnerId());
+        gen.writeNumberField("created_at", chat.getCreatedAt().toEpochMilli());
         gen.writeEndObject();
     }
 }

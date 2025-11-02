@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: status-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://id.mars-ssn.ru/.well-known/jwks.json
+
+  data:
+    redis:
+      host: localhost
+      port: 6381
+      ssl:
+        enabled: false
+
+  kafka:
+    listener:
+      concurrency: 3
+      ack-mode: manual_immediate
+    bootstrap-servers: localhost:29092,localhost:39092,localhost:49092
+    producer:
+      retries: 3
+      acks: all
+      properties:
+        linger.ms: 1
+    consumer:
+      group-id: "status-service"
+      auto-offset-reset: latest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    properties:
+      security.protocol: PLAINTEXT
+
+server:
+  port: 8091
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: Mars123asd!
+    key-store-type: PKCS12
+    key-alias: mars-ssn

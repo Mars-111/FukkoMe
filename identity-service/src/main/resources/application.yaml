@@ -29,6 +29,24 @@ spring:
       ssl:
         enabled: false
 
+  kafka:
+    listener:
+      concurrency: 3
+      ack-mode: manual_immediate
+    bootstrap-servers: localhost:29092,localhost:39092,localhost:49092
+    producer:
+      retries: 3
+      acks: all
+      properties:
+        linger.ms: 1
+    consumer:
+      group-id: "identity-service"
+      auto-offset-reset: latest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    properties:
+      security.protocol: PLAINTEXT
+
 jwt:
   allowed-redirect-uri: "http://localhost:8090,https://mars-ssn.ru,/"
   refresh:

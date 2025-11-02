@@ -1,4 +1,3 @@
-import { Route, Routes } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { UserInfo } from "../../../users/components/UserInfo";
 

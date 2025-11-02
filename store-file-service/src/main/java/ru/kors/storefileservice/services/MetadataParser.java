@@ -33,9 +33,28 @@ public class MetadataParser {
 
             // WEBP
             if (extension.equals("webp")) {
+                // VP8X (расширенный)
                 if (headerBytes.length >= 30 && headerBytes[12] == 'V' && headerBytes[13] == 'P' && headerBytes[14] == '8' && headerBytes[15] == 'X') {
                     int width = ((headerBytes[24] & 0xFF) | ((headerBytes[25] & 0xFF) << 8) | ((headerBytes[26] & 0xFF) << 16)) + 1;
                     int height = ((headerBytes[27] & 0xFF) | ((headerBytes[28] & 0xFF) << 8) | ((headerBytes[29] & 0xFF) << 16)) + 1;
+                    return new FileMetadata(width, height);
+                }
+
+                // VP8 (Lossy)
+                if (headerBytes.length >= 20 && headerBytes[12] == 'V' && headerBytes[13] == 'P' && headerBytes[14] == '8' && headerBytes[15] == ' ') {
+                    int width = (headerBytes[26] & 0xFF) | ((headerBytes[27] & 0xFF) << 8);
+                    int height = (headerBytes[28] & 0xFF) | ((headerBytes[29] & 0xFF) << 8);
+                    return new FileMetadata(width, height);
+                }
+
+                // VP8L (Lossless)
+                if (headerBytes.length >= 25 && headerBytes[12] == 'V' && headerBytes[13] == 'P' && headerBytes[14] == '8' && headerBytes[15] == 'L') {
+                    int b1 = headerBytes[21] & 0xFF;
+                    int b2 = headerBytes[22] & 0xFF;
+                    int b3 = headerBytes[23] & 0xFF;
+                    int b4 = headerBytes[24] & 0xFF;
+                    int width = 1 + (((b2 & 0x3F) << 8) | b1);
+                    int height = 1 + (((b4 & 0x0F) << 10) | (b3 << 2) | ((b2 & 0xC0) >> 6));
                     return new FileMetadata(width, height);
                 }
             }

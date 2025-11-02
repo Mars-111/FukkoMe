@@ -7,7 +7,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://keycloak.mars-ssn.ru/realms/school-social-network
+          jwk-set-uri: https://id.mars-ssn.ru/.well-known/jwks.json
   data:
     redis:
       host: localhost
@@ -43,16 +43,8 @@ server:
     key-alias: mars-ssn
   id: "ws-server-1"
 
-keycloak:
-  public:
-    key:
-      n: nDh7fkMhHawFnu5yYAzu9jMyRF78HpIcs-FLP1UdG-Mm8neEQUTTzZtzFzbJp8DzqL3drKAFAm4QbqQfxYv9w-yuZjd58RLfX4A9q_yhHwCcVrDiNJdUg1VPWagtqsi77g3Bn9O4-wsZRmj9WenW4tOBJgxDHN8cPRIjq4DURfkn-EUVtvRFUDb3BT2Fm_NpxXPhleE5W9JDhPW8TNrlSCZCIykj_eUSnDfQWJrQ6-ipcZPZV3Nel69E9f0rj-ExICXors15XRsJPBsdB6H0bGTomHdRGAujrCuu1ylNyWaM0FXMRuMcIYXWGeaz-V6n_vndxVEzsAZKh-prLSNGdQ
-      e: AQAB
-
 logging:
   level:
-    org.springframework.security: DEBUG
-    org.springframework.security.oauth2: DEBUG
     org.springframework.web: DEBUG
     org.springframework.data.redis: DEBUG
     ru.kors.socketbrokerservice.services.SessionManager: DEBUG

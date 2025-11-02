@@ -1,17 +1,13 @@
 package ru.kors.chatsservice.models;
 
 public record AccessFileJWT(
-        Long fileId,
-        Long userId,
+        long fileId,
+        long userId,
         String subject,
-        Long size,
-        String extension,
         String filename,
-        FileMetadata metadata
+        String extension,
+        long size,
+        Integer width,
+        Integer height
 ) {
-    public record FileMetadata(
-            int width,
-            int height
-    ) {
-    }
 }

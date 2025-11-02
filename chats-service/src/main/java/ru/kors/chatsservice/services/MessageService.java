@@ -1,5 +1,6 @@
 package ru.kors.chatsservice.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -10,20 +11,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.kors.chatsservice.controllers.external.Utils.CurrentUserUtil;
+import ru.kors.chatsservice.controllers.external.utils.CurrentUserUtil;
 import ru.kors.chatsservice.controllers.external.dto.CreateMessageDTO;
 import ru.kors.chatsservice.controllers.external.dto.UpdateMessageDTO;
 import ru.kors.chatsservice.exceptions.BadRequestException;
 import ru.kors.chatsservice.exceptions.DoesNotHaveAccessException;
 import ru.kors.chatsservice.exceptions.NotFoundEntityException;
 import ru.kors.chatsservice.models.AccessFileJWT;
+import ru.kors.chatsservice.models.entity.enums.ChatEventType;
+import ru.kors.chatsservice.models.constants.ChatRoleAccessFlags;
 import ru.kors.chatsservice.models.entity.*;
-import ru.kors.chatsservice.models.entity.constants.MessageFlags;
-import ru.kors.chatsservice.models.entity.constants.TimelineTypes;
-import ru.kors.chatsservice.models.entity.ids.TimelineId;
-import ru.kors.chatsservice.repositories.FileMessageMetadataRepository;
+import ru.kors.chatsservice.models.constants.MessageFlags;
 import ru.kors.chatsservice.repositories.MessageRepository;
-import ru.kors.chatsservice.repositories.TimelineRepository;
 
 import java.util.*;
 
@@ -35,19 +34,15 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final CurrentUserUtil currentUserUtil;
     private final ChatService chatService;
-    private final UserService userService;
     private final KafkaProducerService kafkaProducerService;
     private final ChatEventService chatEventService;
     private final FileJWTService fileJWTService;
     private final TimelineService timelineService;
-    private final TimelineRepository timelineRepository;
+    private final ChatRoleService chatRoleService;
+    private final ObjectMapper objectMapper;
 
     @PersistenceContext
     private EntityManager entityManager;
-
-    public List<Message> findAll() {
-        return messageRepository.findAll();
-    }
 
     public Message findById(Long messageId) {
         return messageRepository.findById(messageId).orElseThrow(() -> new NotFoundEntityException("Message not found"));
@@ -62,25 +57,26 @@ public class MessageService {
     }
 
     public Message createMessage(CreateMessageDTO messageDTO, Long senderId) {
-        log.info("Message reply_to: {}", messageDTO.replyToId());
+        long userRoleAccessFlags = chatRoleService.findRoleAccessFlagsByUserIdAndChat(senderId, messageDTO.chatId());
 
-        //Проверка наличия чата у пользователя
-        if (!userService.existsByIdAndChatId(senderId, messageDTO.chatId())) { //TODO: Добавить кэширование в редис по типу флагов (1111) первая единица - пользовать есть в чате, вторая - пользователь в муте и тд
-            throw new DoesNotHaveAccessException("User does not have access to chat");
+        if ((userRoleAccessFlags & ChatRoleAccessFlags.WRITE) != 0) {
+            throw new DoesNotHaveAccessException("User does not have access write to chat");
+        }
+
+        if ((userRoleAccessFlags & ChatRoleAccessFlags.MUTE) != 0) {
+            throw new DoesNotHaveAccessException("User have mute");
         }
 
         if (messageDTO.replyToId() != null && messageDTO.forwardedFromId() != null) {
             throw new BadRequestException("You cannot reply and forward message at the same time");
         }
 
-
-
         Message message = new Message();
 
         if (messageDTO.fileTokens() != null) {
             List<AccessFileJWT> fileTokens = new ArrayList<>();
             for (String i : messageDTO.fileTokens()) {
-                var accessFileJWT = fileJWTService.convertAccessFileJWT(i);
+                var accessFileJWT = fileJWTService.parseAccessUseCreatedFileJWT(i);
                 if (!Objects.equals(senderId, accessFileJWT.userId()) || !accessFileJWT.subject().equals("file_create")) {
                     throw new DoesNotHaveAccessException("User does not have access to added file");
                 }
@@ -97,27 +93,27 @@ public class MessageService {
         if (messageDTO.flags() != null) {
             message.setFlags(MessageFlags.sortFlagsDefaultUserToCreateMessage(messageDTO.flags()));
         }
-        message.setType(messageDTO.type());
         message.setChat(chatService.findById(messageDTO.chatId()));
-        if (messageDTO.content() != null && !messageDTO.content().isEmpty()) {
+        if (!messageDTO.content().isEmpty()) {
             message.setContent(messageDTO.content());
             message.setFlags(MessageFlags.setFlag(message.getFlags(), MessageFlags.HAS_TEXT));
         }
-        User sender = entityManager.getReference(User.class, senderId);
-        message.setSender(sender);
+
+        message.setSenderId(senderId);
+
         if (messageDTO.replyToId() != null) {
             Message replyTo = findById(messageDTO.replyToId());
-            if (replyTo.getChat().getId() != messageDTO.chatId()) {
+            if (!Objects.equals(replyTo.getChat().getId(), messageDTO.chatId())) {
                 throw new BadRequestException("Reply to message is not in the same chat");
-            }
-            if (MessageFlags.isFlagSet(replyTo.getFlags(), MessageFlags.IS_MUTED)) {
-                throw new BadRequestException("You cannot reply to muted message");
             }
             message.setReplyTo(replyTo);
             message.setFlags(MessageFlags.setFlag(message.getFlags(), MessageFlags.IS_REPLY));
         }
-        if (messageDTO.forwardedFromId() != null) {
-            Message forwardedFrom = entityManager.getReference(Message.class, messageDTO.forwardedFromId());
+        else if (messageDTO.forwardedFromId() != null) {
+            Message forwardedFrom = findById(messageDTO.forwardedFromId());
+            if (!MessageFlags.isFlagSet(forwardedFrom.getFlags(), MessageFlags.ACCESS_FORWARDED)) {
+                throw new DoesNotHaveAccessException("The selected message " + forwardedFrom.getId() + " cannot be forwarded.");
+            }
             message.setForwardedFrom(forwardedFrom);
             message.setFlags(MessageFlags.setFlag(message.getFlags(), MessageFlags.IS_FORWARDED));
         }
@@ -133,10 +129,7 @@ public class MessageService {
         // Получение порядкового номера сообщения в чате TIMELINE
 
         Integer timelineId = timelineService.getNextOrderId(messageDTO.chatId());
-        TimelineId timelineIdObj = new TimelineId(messageDTO.chatId(), timelineId);
-        Timeline timeline = new Timeline(timelineIdObj, TimelineTypes.MESSAGE_TYPE);
-        timelineRepository.save(timeline);
-        message.setTimelineId(timeline.getId().getTimelineId());
+        message.setTimelineId(timelineId);
 
         //
 
@@ -147,71 +140,61 @@ public class MessageService {
         return message;
     }
 
-    public Message updateMessage(Long messageId, UpdateMessageDTO updateMessageDTO, Long senderRequestId) {
+    public ChatEvent updateMessage(long messageId, UpdateMessageDTO updateMessageDTO, long senderRequestId) {
         Message message = findById(messageId);
 
-        if (!message.getSender().getId().equals(senderRequestId)) {
+        if (!message.getSenderId().equals(senderRequestId)) {
             throw new DoesNotHaveAccessException("User does not have access to message");
         }
 
         // Создаем событие изменения чата
         ChatEvent chatEvent = new ChatEvent();
 
-        chatEvent.setType("change message");
+        chatEvent.setType(ChatEventType.EDIT_MESSAGE);
         chatEvent.setChat(message.getChat());
 
-        ObjectMapper mapper = new ObjectMapper();
         // Массив для хранения изменений
 
-        ObjectNode objectNode = mapper.createObjectNode();
-
+        ObjectNode objectNode = objectMapper.createObjectNode();
         objectNode.put("message_id", message.getId());
-
-        ArrayNode changes = mapper.createArrayNode();
-
-
-        if (updateMessageDTO.content() != null) {
-            String oldContent = message.getContent();
-            message.setContent(updateMessageDTO.content()); //set
-            ObjectNode changeNode = mapper.createObjectNode();
-            changeNode.put("field", "content");
-            changeNode.put("old_value", oldContent);
-            changeNode.put("new_value", message.getContent());
-            changes.add(changeNode);
-        }
-
-        objectNode.put("changes", changes);
-
         chatEvent.setData(objectNode);
+
 
         // Получение порядкового номера сообщения в чате TIMELINE
 
         Integer timelineId = timelineService.getNextOrderId(message.getChat().getId());
-        TimelineId timelineIdObj = new TimelineId(message.getChat().getId(), timelineId);
-        Timeline timeline = new Timeline(timelineIdObj, TimelineTypes.EVENT_TYPE);
-        timelineRepository.save(timeline);
-        chatEvent.setTimelineId(timeline.getId().getTimelineId());
+        chatEvent.setTimelineId(timelineId);
 
         //
 
-        message.getChat().getEvents().add(chatEvent);
+        message.setContent(updateMessageDTO.content());
+
 
         message.setFlags(MessageFlags.setFlag(message.getFlags(), MessageFlags.IS_EDITED));
 
         kafkaProducerService.send(chatEvent);
 
-        return messageRepository.save(message);
+        messageRepository.save(message);
+
+
+        return chatEventService.save(chatEvent);
     }
 
-    public void deleteMessage(Long messageId) {
+    public void deleteMessage(long messageId, long executorId) {
         Message message = findById(messageId);
 
-        if (message.getSender() != currentUserUtil.getCurrentUser() && !currentUserUtil.thisUserIsOwnerChat(message.getChat())) {
-            throw new DoesNotHaveAccessException("User does not have access to message");
+        long userRoleAccessFlags = chatRoleService.findRoleAccessFlagsByUserIdAndChat(executorId, message.getChat().getId());
+
+        if (
+                (userRoleAccessFlags & ChatRoleAccessFlags.DELETE_OTHER_PEOPLE_MESSAGE) != 0 ||
+                (message.getSenderId().equals(executorId) && (userRoleAccessFlags & ChatRoleAccessFlags.DELETE_YOUR_MESSAGE) != 0)
+        ) {
+            throw new DoesNotHaveAccessException("User does not have access delete this message in the chat");
         }
 
+        // Создаем событие изменения чата
         ChatEvent chatEvent = new ChatEvent();
-        chatEvent.setType("delete message");
+        chatEvent.setType(ChatEventType.DELETE_MESSAGE);
         chatEvent.setChat(message.getChat());
 
         ObjectMapper mapper = new ObjectMapper();
@@ -219,18 +202,16 @@ public class MessageService {
         objectNode.put("message_id", messageId);
 
         chatEvent.setData(objectNode);
+        //
 
         message.setFlags(MessageFlags.setFlag(message.getFlags(), MessageFlags.IS_DELETED));
 
         // Получение порядкового номера сообщения в чате TIMELINE
-
         Integer timelineId = timelineService.getNextOrderId(message.getChat().getId());
-        TimelineId timelineIdObj = new TimelineId(message.getChat().getId(), timelineId);
-        Timeline timeline = new Timeline(timelineIdObj, TimelineTypes.EVENT_TYPE);
-        timelineRepository.save(timeline);
-        chatEvent.setTimelineId(timeline.getId().getTimelineId());
-
+        chatEvent.setTimelineId(timelineId);
         //
+
+        messageRepository.save(message);
 
         kafkaProducerService.send(chatEventService.save(chatEvent));
     }

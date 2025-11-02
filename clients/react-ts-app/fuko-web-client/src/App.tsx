@@ -5,25 +5,40 @@ import { Login } from './auth/components/Login'
 import { ProtectedOutlet } from './auth/components/ProtectedComponents'
 import { UserInfoRouter } from './general/components/routers/UserInfoRouter';
 import { UserSettings } from './users/components/UserSettings'
+import { Register } from './auth/components/Register'
+import { GeneralMenuOutlet } from './general/components/GeneralMenuOutlet'
+import { useSocket } from './socket/useSocket'
+import { useIdentity } from './auth/hooks/useIdentity'
+import { MyInfo } from './users/components/MyInfo'
+import { Welcome } from './general/components/Welcome'
+import { GlobalSearch } from './general/components/GlobalSearch'
+import { TestChatsPage } from './chats/components/TestChats'
 
-function App() {    
+
+function App() {   
+    useIdentity(); // Инициализация аутентификации
+    useSocket(); // Инициализация сокета
+
     return (
         <Routes>
-            <Route path="/" element={<h1>Hello World</h1>} />
+            <Route path="/" element={<Welcome />} />
             <Route path="/app" element={<ProtectedOutlet loadComponent={<h1>Loading auth...</h1>} />}>
-                <Route index element={<h1>Welcome to the App</h1>} />
-                <Route path="chats" element={<h1>Chats Page</h1>} />
-                <Route path="chats/:chatId" element={<h1>Chat Details</h1>} />
-                <Route path="user/:id" element={<UserInfoRouter />} />
-                <Route path="user/me" element={<h1>My Profile</h1>} />
-                <Route path="settings" element={<h1>Settings Page</h1>} />
-                <Route path="settings/profile" element={<UserSettings />} />
-                {/* <Route path="test/files" element={<TestFileApi />} /> */}
+                <Route element={<GeneralMenuOutlet />} >
+                    <Route index element={<TestChatsPage />} />
+                    <Route path="search" element={<GlobalSearch />}>
+                        <Route path='user/:id' element={<UserInfoRouter />} />
+                    </Route>
+                    <Route path="chat/:chatId" element={<h1>Chat Details</h1>} />
+                    <Route path="user/:id" element={<UserInfoRouter />} />
+                    <Route path="user/me" element={<MyInfo />} />
+                    <Route path="user/me/settings" element={<UserSettings />} />
+                </Route>
             </Route>
-            <Route path="/login" element={<Login/>} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="*" element={<UniversalError errorCode={404} />} />
         </Routes>
     )
 }
 
-export default App
+export default App;
