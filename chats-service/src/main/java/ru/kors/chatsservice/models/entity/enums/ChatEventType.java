@@ -3,6 +3,7 @@ package ru.kors.chatsservice.models.entity.enums;
 public enum ChatEventType {
     DELETE_MESSAGE,
     EDIT_MESSAGE,
+    EDIT_CHAT,
     JOIN,
     LEAVE,
     BAN,

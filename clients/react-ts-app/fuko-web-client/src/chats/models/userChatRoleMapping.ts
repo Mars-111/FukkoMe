@@ -1,6 +1,6 @@
 
 
-export type userChatRoleMapping = {
+export type UserChatRoleMapping = {
     chatId: number;
     userId: number;
     roleId: number;

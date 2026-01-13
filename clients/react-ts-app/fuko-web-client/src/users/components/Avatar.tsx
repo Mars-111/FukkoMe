@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useFileById } from "../../files/hooks/useFileById";
 import type { User } from "../models/user";
 import "./Avatar.css"
 import './AvatarTypes.css';
 import './../../general/components/Shimmer.css';
+import type { Chat } from "../../chats/models/chat";
 
 // Общая логика рендера аватара
 function AvatarBase({ blob, circle }: { blob: Blob; circle: boolean }) {
@@ -31,7 +32,7 @@ function AvatarBase({ blob, circle }: { blob: Blob; circle: boolean }) {
 
 
 
-type AvatarSizes = 'small' | 'large' | 'xl';
+export type AvatarSizes = 'small' | 'small-medium' | 'medium' | 'large' | 'large-xl' | 'xl' ;
 
 // Заглушка / ожидание
 export function AwaitAvatar({ circle, size }: { circle: boolean, size?: AvatarSizes; }) {
@@ -57,7 +58,23 @@ export function NoAvatar({ circle, colorId, initial, size }: { circle: boolean; 
         };
         setColor(getAvatarColor(colorId));
     }, [colorId]);
-    
+
+    const fontSize = useMemo(() => {
+        switch (size) {
+            case "small":
+                return 15
+            case "small-medium":
+                return 20;
+            case "medium":
+                return 30;
+            case "large":
+                return 50;
+            case "large-xl":
+                return 70
+            case "xl":
+                return 100;
+        }
+    }, [size])
 
     return (
     <div
@@ -69,8 +86,7 @@ export function NoAvatar({ circle, colorId, initial, size }: { circle: boolean; 
         alignItems: "center",
         justifyContent: "center",
         color: "#fff",
-        fontWeight: "bold",
-        fontSize: 50,
+        fontSize: fontSize,
         userSelect: "none",
       }}
     >
@@ -98,7 +114,7 @@ export function SmallUserAvatar({ user, circle }: { user: User; circle: boolean 
         <div className="avatar-container-small">
             {(!file || !file.blob) && user.smallAvatarId !== null && user.smallAvatarId > 0 && <AwaitAvatar circle={circle} size="small" />}
             {file && file.blob && <AvatarBase blob={file.blob || null} circle={circle} />}
-            {!file && (user.smallAvatarId === null || user.smallAvatarId < 0) && <NoAvatar circle colorId={user.smallAvatarId || -1} initial={user.username} />}
+            {!file && (user.smallAvatarId === null || user.smallAvatarId < 0) && <NoAvatar circle colorId={user.smallAvatarId || -1} initial={user.username} size="small" />}
         </div>
     );
 }
@@ -128,7 +144,7 @@ export function LargeUserAvatar({ user, circle }: { user: User; circle: boolean 
             {blob && <AvatarBase blob={blob} circle={circle} />}
             {!blob && user.largeAvatarId !== null && user.largeAvatarId > 0 && <AwaitAvatar size="large" circle={circle} />}
             {!blob && (user.largeAvatarId === null || user.largeAvatarId < 0) && 
-                <NoAvatar circle colorId={user.largeAvatarId || -1} initial={user.username} /> 
+                <NoAvatar circle colorId={user.largeAvatarId || -1} initial={user.username} size="large" /> 
             }
         </div>
     );
@@ -158,7 +174,77 @@ export function FullscreenUserAvatar({ user, circle }: { user: User; circle: boo
             {blob && user.fullscreenAvatarId !== null && user.fullscreenAvatarId > 0 && <AvatarBase blob={blob} circle={circle} />}
             {!blob && user.fullscreenAvatarId !== null && user.fullscreenAvatarId > 0 && <AwaitAvatar size="xl" circle={circle} />}
             {!blob && (user.fullscreenAvatarId === null || user.fullscreenAvatarId < 0) && 
-                <NoAvatar circle colorId={user.fullscreenAvatarId || -1} initial={user.username} /> 
+                <NoAvatar circle colorId={user.fullscreenAvatarId || -1} initial={user.username} size="xl" /> 
+            }
+        </div>
+    );
+}
+
+export function SmallChatAvatar({ chat, circle }: { chat: Chat; circle: boolean }) {
+    const file = useFileById(chat.smallAvatarId, undefined);
+
+    return (
+        <div className="avatar-container-small">
+            {(!file || !file.blob) && chat.smallAvatarId !== null && chat.smallAvatarId > 0 && <AwaitAvatar circle={circle} size="small" />}
+            {file && file.blob && <AvatarBase blob={file.blob || null} circle={circle} />}
+            {!file && (chat.smallAvatarId === null || chat.smallAvatarId < 0) && <NoAvatar circle colorId={chat.smallAvatarId || -1} initial={chat.name} />}
+        </div>
+    );
+}
+
+export function LargeChatAvatar({ chat, circle, size = "large" }: { chat: Chat; circle: boolean; size?: "large" | "large-xl" }) {
+    const small = useFileById(chat.smallAvatarId, undefined);
+    const large = useFileById(chat.largeAvatarId, undefined);
+    const [blob, setBlob] = useState<Blob | null>(null);
+
+    useEffect(() => {
+        if (large?.blob) {
+            console.log("Задаем");
+            if (large.blob !== blob) setBlob(large.blob);
+        } else if (small?.blob) {
+            console.log("Задаем");
+            if (small.blob !== blob) setBlob(small.blob);
+        } else {
+            console.log("Задаем");
+            setBlob(null);
+        }
+    }, [small, large]);
+
+    return (
+        <div className={`avatar-container-${size}`}>
+            {blob && <AvatarBase blob={blob} circle={circle} />}
+            {!blob && chat.largeAvatarId !== null && chat.largeAvatarId > 0 && <AwaitAvatar size={size} circle={circle} />}
+            {!blob && (chat.largeAvatarId === null || chat.largeAvatarId < 0) && 
+                <NoAvatar circle colorId={chat.largeAvatarId || -1} initial={chat.name} size={size} /> 
+            }
+        </div>
+    );
+}
+
+export function FullscreenChatAvatar({ chat, circle }: { chat: Chat; circle: boolean }) {
+    const small = useFileById(chat.smallAvatarId, undefined);
+    const large = useFileById(chat.largeAvatarId, undefined);
+    const full = useFileById(chat.fullscreenAvatarId, undefined);
+    const [blob, setBlob] = useState<Blob | null>(null);
+
+    useEffect(() => {
+        if (full?.blob) {
+            if (full.blob !== blob) setBlob(full.blob);
+        } else if (large?.blob) {
+            if (large.blob !== blob) setBlob(large.blob);
+        } else if (small?.blob) {
+            if (small.blob !== blob) setBlob(small.blob);
+        } else {
+            setBlob(null);
+        }
+    }, [small, large, full]);
+
+    return (
+        <div className="avatar-container-xl">
+            {blob && chat.fullscreenAvatarId !== null && chat.fullscreenAvatarId > 0 && <AvatarBase blob={blob} circle={circle} />}
+            {!blob && chat.fullscreenAvatarId !== null && chat.fullscreenAvatarId > 0 && <AwaitAvatar size="xl" circle={circle} />}
+            {!blob && (chat.fullscreenAvatarId === null || chat.fullscreenAvatarId < 0) && 
+                <NoAvatar circle colorId={chat.fullscreenAvatarId || -1} initial={chat.name} /> 
             }
         </div>
     );

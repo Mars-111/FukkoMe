@@ -1,28 +1,85 @@
+.chat-members-count {
+  margin-left: auto;          /* уходит вправо */
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #9ca3af;             /* лёгкий серый */
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  line-height: 1;
+  user-select: none;
+}
+
+.entity-cell-title-block {
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+  min-width: 0; /* важно для text-overflow */
+}
+
+.entity-cell-name {
+  font-size: 15px;
+  color: #e5e7eb;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entity-cell-tag {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
 .entity-cell {
   display: flex;
   align-items: center;
   width: 100%;
   padding: 10px 14px;
+  position: relative;          /* обязательно для ::after */
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  will-change: transform;       /* микроускорение */
 }
 
-.entity-cell:hover {
-  background-color: rgba(255, 255, 255, 0.05); /* лёгкий hover, как у телеграма */
+.entity-cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: white;            /* база для смешивания */
+  opacity: 0;                   /* всё через opacity – быстро */
+  transition: opacity 0.07s ease;
+  will-change: opacity;
 }
 
-.entity-cell:active {
-  background-color: rgba(255, 255, 255, 0.1); /* тап */
+/* Hover — слегка светлее */
+.entity-cell:hover::after {
+  opacity: 0.05;
+}
+
+/* Active — чуть сильнее */
+.entity-cell:active::after {
+  opacity: 0.10;
 }
 
 .entity-cell-name {
   margin-left: 12px;
   font-size: 15px;
-  color: #e5e7eb; /* gray-200 */
+  color: #e5e7eb; 
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Selected подложка */
+.selected {
+  background-color: rgba(59, 130, 246, 0.2);
 }

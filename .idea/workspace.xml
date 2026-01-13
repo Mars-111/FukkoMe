@@ -5,174 +5,64 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="598e31c8-ebbb-4f33-9c7c-6ac1d3998cd0" name="Changes" comment="18.02.2025">
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/config/CacheConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/config/CustomEdDSAJwtDecoder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/dto/UpdateChatDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/constants/ChatRoleAccessFlags.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/UserChatRoleMapping.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/embeddable/UserChatRoleId.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/enums/ChatEventType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/enums/ChatType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/projection/ChatInfoProjection.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/UserChatRoleMappingRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/dto/AccessFlagsAndRankDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/dto/ChatInsertResult.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/exeptions/BadDataException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/exeptions/ConflictException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/exeptions/UnknownException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/repositories/dto/ModifyingAvatarDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/services/KafkaProducerService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/utils/JsonUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/identity-service/src/main/resources/search_index.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/config/CustomEdDSAJwtDecoder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/listeners/dto/UserProfileProjection.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/services/KafkaProducerService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/services/dto/OnlineStatusDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/.gitattributes" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/.mvn/wrapper/maven-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/docker-compose.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/mvnw" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/mvnw.cmd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/src/main/java/me/fukko/statusservice/StatusServiceApplication.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/src/main/java/me/fukko/statusservice/config/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/src/main/java/me/fukko/statusservice/config/TODOStartSyncOnlineSessions.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/src/main/java/me/fukko/statusservice/controllers/StatusController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/src/main/java/me/fukko/statusservice/listeners/MessageKafkaConsumer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/src/main/java/me/fukko/statusservice/listeners/dto/OnlineStatusDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/src/main/java/me/fukko/statusservice/services/StatusService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/src/main/resources/application.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/src/main/resources/keystore.p12" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/status-service/src/test/java/me/fukko/statusservice/StatusServiceApplicationTests.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/ChatRoleController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/dto/ChatMembersDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/dto/UpdateAvatarDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/exceptions/BlockingTooLargeRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/exceptions/InvalidFileToken.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/projection/ChatMemberInfo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/dto/ChatMembersPage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/dto/ModifyingAvatarDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/dto/UserRolePairProjection.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/utils/ChatMemberBinaryEncoder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chats-service/src/main/resources/search_index.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/listeners/dto/JoinChatUserDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/00b42053-b036-43b0-ae24-54eecb87ce56.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/48509f5b-d771-4435-a2d2-80109759e7de.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/48509f5b-d771-4435-a2d2-80109759e7de/storage_v2/_src_/database/order_db.D_-RSQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/48509f5b-d771-4435-a2d2-80109759e7de/storage_v2/_src_/database/order_db.D_-RSQ/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/48509f5b-d771-4435-a2d2-80109759e7de/storage_v2/_src_/database/order_db.D_-RSQ/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/48509f5b-d771-4435-a2d2-80109759e7de/storage_v2/_src_/database/order_db.D_-RSQ/schema/public.abK9xQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/77dd1a25-a48f-4762-8230-2b91f532b106.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/77dd1a25-a48f-4762-8230-2b91f532b106/storage_v2/_src_/database/identity.vnDo9w.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/77dd1a25-a48f-4762-8230-2b91f532b106/storage_v2/_src_/database/identity.vnDo9w/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/77dd1a25-a48f-4762-8230-2b91f532b106/storage_v2/_src_/database/identity.vnDo9w/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/77dd1a25-a48f-4762-8230-2b91f532b106/storage_v2/_src_/database/identity.vnDo9w/schema/public.abK9xQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/863f7b7d-404e-4ca0-b992-65697a220f6e.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/863f7b7d-404e-4ca0-b992-65697a220f6e/storage_v2/_src_/database/chats.G9ijBQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/863f7b7d-404e-4ca0-b992-65697a220f6e/storage_v2/_src_/database/chats.G9ijBQ/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/863f7b7d-404e-4ca0-b992-65697a220f6e/storage_v2/_src_/database/chats.G9ijBQ/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/863f7b7d-404e-4ca0-b992-65697a220f6e/storage_v2/_src_/database/chats.G9ijBQ/schema/public.abK9xQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/af6e78ab-5bb3-4c8b-8c74-2edaf6796818.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/af6e78ab-5bb3-4c8b-8c74-2edaf6796818/storage_v2/_src_/database/store_media_db.V-yMXg.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/af6e78ab-5bb3-4c8b-8c74-2edaf6796818/storage_v2/_src_/database/store_media_db.V-yMXg/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/af6e78ab-5bb3-4c8b-8c74-2edaf6796818/storage_v2/_src_/database/store_media_db.V-yMXg/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/af6e78ab-5bb3-4c8b-8c74-2edaf6796818/storage_v2/_src_/database/store_media_db.V-yMXg/schema/public.abK9xQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/62fedaa5-0e37-4f39-94a2-2145580d18cb.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/62fedaa5-0e37-4f39-94a2-2145580d18cb.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/62fedaa5-0e37-4f39-94a2-2145580d18cb/storage_v2/_src_/database/chats.G9ijBQ/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/62fedaa5-0e37-4f39-94a2-2145580d18cb/storage_v2/_src_/database/chats.G9ijBQ/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/77c22023-5585-4dcc-8dec-3279fcfef313.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/77c22023-5585-4dcc-8dec-3279fcfef313.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/config/RestClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/config/RestConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/config/SecurityBeans.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/config/SecurityBeans.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/config/CacheConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/config/InternalApiFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/config/InternalApiFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/config/RedisConfig.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/ChatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/MessageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/MessageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/UserController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/Utils/CurrentUserUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/utils/CurrentUserUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/dto/CreateChatDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/dto/CreateChatDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/dto/CreateMessageDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/dto/CreateMessageDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/handlers/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/handlers/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/utils/CurrentUserUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/external/utils/CurrentUserUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/internal/InternalChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/internal/InternalChatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/internal/InternalMessageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/internal/InternalMessageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/internal/InternalUserController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/AccessFileJWT.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/AccessFileJWT.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/internal/dto/ChangeChatDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/controllers/internal/dto/UpdateChatDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/constants/ChatRoleAccessFlags.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/constants/ChatRoleAccessFlags.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/Chat.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/Chat.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/ChatEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/ChatEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/ChatMetadata.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/ChatRole.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/ChatRole.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/FileMetadata.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/FileMetadata.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/JoinRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/JoinRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/LastMessageReadInChat.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/Message.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/Timeline.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/User.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/UserEvent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/constants/ChatRoles.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/constants/ChatTypes.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/constants/MessageFlags.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/constants/MessageFlags.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/constants/TimelineTypes.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/ChatDeserializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/ChatDeserializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/UserChatRoleMapping.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/ChatMember.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/ChatEventDeserializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/ChatEventDeserializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/ChatRoleDeserializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/ChatRoleDeserializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/JoinRequestDeserializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/JoinRequestDeserializer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/MessageDeserializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/MessageDeserializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/UserDeserializer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/deserializers/UserEventDeserializer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/embeddable/ReadMessageId.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/ids/TimelineId.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/embeddable/UserChatRoleId.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/embeddable/ChatMemberId.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/enums/ChatEventType.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/enums/ChatEventType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/projection/ChatInfoProjection.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/projection/ChatInfoProjection.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/ChatEventSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/ChatEventSerializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/ChatRoleSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/ChatRoleSerializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/ChatSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/ChatSerializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/FileMetadataSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/FileMetadataSerializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/JoinRequestSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/JoinRequestSerializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/MessageSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/MessageSerializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/UserEventSerializer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/models/entity/serializers/UserSerializer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/ChatEventRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/ChatEventRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/ChatRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/ChatRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/ChatRoleRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/ChatRoleRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/TimelineRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/UserEventRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/UserRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/UserChatRoleMappingRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/ChatMemberRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/dto/ChatInsertResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/dto/ChatInsertResult.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/ChatEventService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/ChatEventService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/ChatRoleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/ChatRoleService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/ChatService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/FileJWTService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/FileJWTService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/JoinRequestService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/JoinRequestService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/KafkaProducerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/KafkaProducerService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/MessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/MessageService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/TimelineService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/TimelineService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/services/UserService.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/chats-service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/chats-service/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose/pgdata/base/1/1259" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose/pgdata/base/1/1259" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose/pgdata/base/1/2619" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose/pgdata/base/1/2619" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose/pgdata/base/1/2619_fsm" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose/pgdata/base/1/2619_fsm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose/pgdata/base/1/2619_vm" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose/pgdata/base/1/2619_vm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose/pgdata/base/1/2696" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose/pgdata/base/1/2696" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose/pgdata/base/5/pg_internal.init" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose/pgdata/global/pg_control" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose/pgdata/global/pg_control" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose/pgdata/pg_stat/pgstat.stat" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose/pgdata/pg_stat/pgstat.stat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/docker-compose/pgdata/pg_wal/000000010000000000000001" beforeDir="false" afterPath="$PROJECT_DIR$/docker/docker-compose/pgdata/pg_wal/000000010000000000000001" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/controllers/extern/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/controllers/extern/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/controllers/extern/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/controllers/extern/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/controllers/extern/dto/UpdateAvatarDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/controllers/extern/dto/UpdateAvatarDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/controllers/extern/dto/UpdateUserDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/controllers/extern/dto/UpdateUserDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/controllers/handlers/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/controllers/handlers/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/filters/AccessTokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/filters/AccessTokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/models/UserIdAndPassword.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/models/entity/projection/UserIdAndPassword.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/models/UserInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/models/entity/projection/UserProfileProjection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/models/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/models/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/repositories/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/repositories/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/repositories/dto/UserUpdateFields.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/services/FileTokenService.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/services/FileTokenService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/services/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/services/authenticatedUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/java/org/example/identityservice/services/AuthenticatedUserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/identity-service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/identity-service/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/socket-broker-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/socket-broker-service/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/api/UsersRestApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/api/UsersRestApi.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/config/KeycloakPublicKey.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/config/WebSocketMessageHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/config/WebSocketMessageHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/controllers/TestController.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/listeners/MessageKafkaConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/listeners/MessageKafkaConsumer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/models/UserSession.java" beforeDir="false" afterPath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/models/UserSession.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/services/JwtService.java" beforeDir="false" afterPath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/services/JwtService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/services/SessionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/socket-broker-service/src/main/java/ru/kors/socketbrokerservice/services/SessionManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/socket-broker-service/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/socket-broker-service/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/store-file-service/src/main/java/ru/kors/storefileservice/config/CustomReactiveEdDSAJwtDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/store-file-service/src/main/java/ru/kors/storefileservice/config/CustomReactiveEdDSAJwtDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/store-file-service/src/main/java/ru/kors/storefileservice/models/UploadResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/store-file-service/src/main/java/ru/kors/storefileservice/models/UploadResult.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/store-file-service/src/main/java/ru/kors/storefileservice/services/DataFileUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/store-file-service/src/main/java/ru/kors/storefileservice/services/DataFileUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/store-file-service/src/main/java/ru/kors/storefileservice/services/MetadataParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/store-file-service/src/main/java/ru/kors/storefileservice/services/MetadataParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timeline-master-service/src/main/java/ru/kors/timelineservice/controllers/TimelineController.java" beforeDir="false" afterPath="$PROJECT_DIR$/timeline-master-service/src/main/java/ru/kors/timelineservice/controllers/TimelineController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timeline-master-service/src/main/java/ru/kors/timelineservice/models/TimelineModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/timeline-master-service/src/main/java/ru/kors/timelineservice/models/TimelineModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timeline-master-service/src/main/java/ru/kors/timelineservice/services/TimelineService.java" beforeDir="false" afterPath="$PROJECT_DIR$/timeline-master-service/src/main/java/ru/kors/timelineservice/services/TimelineService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -190,11 +80,11 @@
         <option value="HTML File" />
         <option value="JavaScript File" />
         <option value="Dockerfile" />
-        <option value="Exception" />
         <option value="Enum" />
+        <option value="Exception" />
         <option value="Record" />
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -227,6 +117,8 @@
     <setting file="jar://$MAVEN_REPOSITORY$/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar!/jakarta/persistence/OneToMany.class" root0="SKIP_INSPECTION" />
     <setting file="jar://$MAVEN_REPOSITORY$/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar!/org/postgresql/Driver.class" root0="SKIP_INSPECTION" />
     <setting file="jar://$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar!/lombok/ToString.class" root0="SKIP_INSPECTION" />
+    <setting file="jar://$MAVEN_REPOSITORY$/org/springframework/data/spring-data-commons/3.4.1/spring-data-commons-3.4.1.jar!/org/springframework/data/repository/CrudRepository.class" root0="SKIP_INSPECTION" />
+    <setting file="jar://$MAVEN_REPOSITORY$/org/springframework/data/spring-data-jpa/3.4.1/spring-data-jpa-3.4.1.jar!/org/springframework/data/jpa/repository/JpaRepository.class" root0="SKIP_INSPECTION" />
     <setting file="jar://$MAVEN_REPOSITORY$/org/springframework/kafka/spring-kafka/3.3.1/spring-kafka-3.3.1.jar!/org/springframework/kafka/core/KafkaTemplate.class" root0="SKIP_INSPECTION" />
     <setting file="jar://$MAVEN_REPOSITORY$/org/springframework/spring-websocket/6.2.0/spring-websocket-6.2.0.jar!/org/springframework/web/socket/CloseStatus.class" root0="SKIP_INSPECTION" />
     <setting file="jar://$MAVEN_REPOSITORY$/org/springframework/spring-websocket/6.2.0/spring-websocket-6.2.0.jar!/org/springframework/web/socket/PingMessage.class" root0="SKIP_INSPECTION" />
@@ -316,7 +208,7 @@
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;jdk.selected.JAVA_MODULE&quot;: &quot;22&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/develop/School-Social-Network/status-service/src/main/resources&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/mars3/Downloads/MinecraftDevelopmebt/Minecraft Development/lib/Minecraft Development-2025.3-1.8.10-base.jar&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -328,7 +220,7 @@
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
     &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;http.proxy&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -345,11 +237,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\develop\School-Social-Network\chats-service\src\main\resources" />
       <recent name="C:\develop\School-Social-Network\status-service\src\main\resources" />
       <recent name="C:\develop\School-Social-Network\status-service\src\main\java\me\fukko\statusservice\listeners" />
       <recent name="C:\develop\School-Social-Network\identity-service\src\main\resources" />
       <recent name="C:\develop\School-Social-Network\docker\chat-service" />
-      <recent name="C:\develop\School-Social-Network\chats-service\target" />
     </key>
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="" />
@@ -382,7 +274,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.ChatsServiceApplication">
+  <component name="RunManager" selected="Spring Boot.IdentityServiceApplication">
     <configuration name="openRealms | #1" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/user-service/src/main/resources/http-test/openRealms.http" runType="Run single request">
       <method v="2" />
     </configuration>
@@ -466,15 +358,15 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Docker.kafka: Compose Deployment" />
       <item itemvalue="HTTP Request.openRealms | #1" />
       <item itemvalue="JUnit.FileJWTServiceTest.generateFileAccessToken_shouldReturnValidToken" />
       <item itemvalue="Spring Boot.ChatsServiceApplication" />
       <item itemvalue="Spring Boot.IdentityServiceApplication" />
       <item itemvalue="Spring Boot.SocketBrokerServiceApplication" />
       <item itemvalue="Spring Boot.StatusServiceApplication" />
-      <item itemvalue="Spring Boot.StoreFileServiceApplication" />
       <item itemvalue="Spring Boot.TimelineMasterServiceApplication" />
-      <item itemvalue="Docker.kafka: Compose Deployment" />
+      <item itemvalue="Spring Boot.StoreFileServiceApplication" />
     </list>
     <recent_temporary>
       <list>
@@ -799,6 +691,77 @@
       <workItem from="1761322392819" duration="725000" />
       <workItem from="1761390615092" duration="14994000" />
       <workItem from="1762079432034" duration="2000" />
+      <workItem from="1762199990083" duration="3352000" />
+      <workItem from="1762204040442" duration="101000" />
+      <workItem from="1762204155075" duration="1044000" />
+      <workItem from="1762255680381" duration="1965000" />
+      <workItem from="1762348826089" duration="5551000" />
+      <workItem from="1762711708929" duration="163000" />
+      <workItem from="1762711889618" duration="11000" />
+      <workItem from="1762711933995" duration="14000" />
+      <workItem from="1762712009428" duration="7374000" />
+      <workItem from="1762811869918" duration="1787000" />
+      <workItem from="1763151964122" duration="2044000" />
+      <workItem from="1763221703419" duration="1983000" />
+      <workItem from="1763584423192" duration="2157000" />
+      <workItem from="1763642065588" duration="3550000" />
+      <workItem from="1763679012351" duration="1355000" />
+      <workItem from="1763722323535" duration="1959000" />
+      <workItem from="1763742801387" duration="4006000" />
+      <workItem from="1763822322249" duration="9950000" />
+      <workItem from="1763895480504" duration="5396000" />
+      <workItem from="1764010191944" duration="4635000" />
+      <workItem from="1764087656278" duration="3591000" />
+      <workItem from="1764108608281" duration="5871000" />
+      <workItem from="1764158328019" duration="7303000" />
+      <workItem from="1764417176828" duration="205000" />
+      <workItem from="1764443756108" duration="3296000" />
+      <workItem from="1764515068512" duration="16466000" />
+      <workItem from="1764719546700" duration="403000" />
+      <workItem from="1764795152204" duration="593000" />
+      <workItem from="1764801606370" duration="2561000" />
+      <workItem from="1764870109941" duration="999000" />
+      <workItem from="1764970219875" duration="4301000" />
+      <workItem from="1765039657154" duration="10098000" />
+      <workItem from="1765118870300" duration="4324000" />
+      <workItem from="1765154996116" duration="3643000" />
+      <workItem from="1765213739801" duration="8852000" />
+      <workItem from="1765236761276" duration="32000" />
+      <workItem from="1765236843833" duration="63000" />
+      <workItem from="1765236939586" duration="22000" />
+      <workItem from="1765237010916" duration="568000" />
+      <workItem from="1765241362734" duration="8058000" />
+      <workItem from="1765407382833" duration="2990000" />
+      <workItem from="1765459057472" duration="858000" />
+      <workItem from="1765550798931" duration="784000" />
+      <workItem from="1765551609177" duration="114000" />
+      <workItem from="1765551744406" duration="228000" />
+      <workItem from="1765552127228" duration="491000" />
+      <workItem from="1765573878927" duration="77000" />
+      <workItem from="1765573975447" duration="116000" />
+      <workItem from="1765650544073" duration="957000" />
+      <workItem from="1766013959304" duration="4117000" />
+      <workItem from="1766061983503" duration="595000" />
+      <workItem from="1766356439615" duration="59000" />
+      <workItem from="1766586414905" duration="998000" />
+      <workItem from="1766678572248" duration="70000" />
+      <workItem from="1766785019064" duration="2245000" />
+      <workItem from="1766864770443" duration="7619000" />
+      <workItem from="1766949113217" duration="1677000" />
+      <workItem from="1767051031761" duration="2461000" />
+      <workItem from="1767118870922" duration="4807000" />
+      <workItem from="1767131737870" duration="1332000" />
+      <workItem from="1767294888090" duration="1103000" />
+      <workItem from="1767306317004" duration="1035000" />
+      <workItem from="1767356774520" duration="782000" />
+      <workItem from="1767377555172" duration="4540000" />
+      <workItem from="1767547151749" duration="14000" />
+      <workItem from="1767617288210" duration="601000" />
+      <workItem from="1767758557952" duration="4377000" />
+      <workItem from="1767987344197" duration="3902000" />
+      <workItem from="1768166051831" duration="1294000" />
+      <workItem from="1768242595707" duration="2698000" />
+      <workItem from="1768318299031" duration="961000" />
     </task>
     <task id="LOCAL-00001" summary="2">
       <option name="closed" value="true" />
@@ -912,5 +875,13 @@
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
     <select />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
   </component>
 </project>

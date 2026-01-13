@@ -8,7 +8,7 @@ export type StateChat = {
     syncChatIdsAfterOpenSet: Set<number>;
     addSyncChatIdsAfterOpen: (chatId: number) => void;
     /*
-        Нужно требуеться ли обновление? 
+        Нужно требуеться ли обновление?
         Эти boolean говорят нам, нужно ли обнолять пользоватея, если он актуален?
     */
     requiredChatUpdateMap: Map<number, boolean>;
@@ -17,10 +17,9 @@ export type StateChat = {
         Список моих чатов, что бы не запрашивать их каждый раз.
     */
     myChatIds: Set<number>;
+    setMyChatIds: (chatIds: Set<number>) => void;
     addMyChatId: (chatId: number) => void;
     deleteMyChatId: (chatId: number) => void;
-    requireMyChatIdsRefresh: boolean;
-    setRequireMyChatIdsRefresh: (required: boolean) => void;
 };
 
 export const useChatCacheMetaStore = create<StateChat>((set, get) => ({
@@ -35,5 +34,23 @@ export const useChatCacheMetaStore = create<StateChat>((set, get) => ({
         const currentMap = new Map(get().requiredChatUpdateMap);
         currentMap.set(chatId, required);
         set({ requiredChatUpdateMap: currentMap });
+    },
+    myChatIds: new Set<number>(),
+    setMyChatIds: (chatIds: Set<number>) => {
+        set({ myChatIds: chatIds });
+    },
+    addMyChatId: (chatId: number) => {
+        set((state) => { 
+            const newMyChatIds = new Set(state.myChatIds);
+            newMyChatIds.add(chatId)
+            return { myChatIds: newMyChatIds};
+        });
+    },
+    deleteMyChatId: (chatId: number) => {
+        set((state) => { 
+            const newMyChatIds = new Set(state.myChatIds);
+            newMyChatIds.delete(chatId)
+            return { myChatIds: newMyChatIds};
+        });
     }
 }));

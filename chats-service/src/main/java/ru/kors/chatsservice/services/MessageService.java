@@ -1,8 +1,6 @@
 package ru.kors.chatsservice.services;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -22,6 +20,7 @@ import ru.kors.chatsservice.models.entity.enums.ChatEventType;
 import ru.kors.chatsservice.models.constants.ChatRoleAccessFlags;
 import ru.kors.chatsservice.models.entity.*;
 import ru.kors.chatsservice.models.constants.MessageFlags;
+import ru.kors.chatsservice.repositories.ChatRepository;
 import ru.kors.chatsservice.repositories.MessageRepository;
 
 import java.util.*;
@@ -40,6 +39,7 @@ public class MessageService {
     private final TimelineService timelineService;
     private final ChatRoleService chatRoleService;
     private final ObjectMapper objectMapper;
+    private final ChatRepository chatRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -59,11 +59,11 @@ public class MessageService {
     public Message createMessage(CreateMessageDTO messageDTO, Long senderId) {
         long userRoleAccessFlags = chatRoleService.findRoleAccessFlagsByUserIdAndChat(senderId, messageDTO.chatId());
 
-        if ((userRoleAccessFlags & ChatRoleAccessFlags.WRITE) != 0) {
+        if ((userRoleAccessFlags & ChatRoleAccessFlags.WRITE) == 0) {
             throw new DoesNotHaveAccessException("User does not have access write to chat");
         }
 
-        if ((userRoleAccessFlags & ChatRoleAccessFlags.MUTE) != 0) {
+        if ((userRoleAccessFlags & ChatRoleAccessFlags.MUTE) == 0) {
             throw new DoesNotHaveAccessException("User have mute");
         }
 
@@ -93,7 +93,7 @@ public class MessageService {
         if (messageDTO.flags() != null) {
             message.setFlags(MessageFlags.sortFlagsDefaultUserToCreateMessage(messageDTO.flags()));
         }
-        message.setChat(chatService.findById(messageDTO.chatId()));
+        message.setChat(chatRepository.findById(messageDTO.chatId()).orElseThrow(() -> new NotFoundEntityException("Chat not found")));
         if (!messageDTO.content().isEmpty()) {
             message.setContent(messageDTO.content());
             message.setFlags(MessageFlags.setFlag(message.getFlags(), MessageFlags.HAS_TEXT));
@@ -128,7 +128,7 @@ public class MessageService {
 
         // Получение порядкового номера сообщения в чате TIMELINE
 
-        Integer timelineId = timelineService.getNextOrderId(messageDTO.chatId());
+        Long timelineId = timelineService.getNextMessageOrderId(messageDTO.chatId()); //Тут будет grpc запрос к микросервису который выдает timelineId
         message.setTimelineId(timelineId);
 
         //
@@ -162,7 +162,7 @@ public class MessageService {
 
         // Получение порядкового номера сообщения в чате TIMELINE
 
-        Integer timelineId = timelineService.getNextOrderId(message.getChat().getId());
+        Long timelineId = timelineService.getNextEventOrderId(message.getChat().getId());
         chatEvent.setTimelineId(timelineId);
 
         //
@@ -207,7 +207,7 @@ public class MessageService {
         message.setFlags(MessageFlags.setFlag(message.getFlags(), MessageFlags.IS_DELETED));
 
         // Получение порядкового номера сообщения в чате TIMELINE
-        Integer timelineId = timelineService.getNextOrderId(message.getChat().getId());
+        Long timelineId = timelineService.getNextEventOrderId(message.getChat().getId());
         chatEvent.setTimelineId(timelineId);
         //
 

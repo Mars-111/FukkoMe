@@ -1,20 +1,25 @@
 import { useCallback, useEffect } from "react";
 import { create } from "zustand";
-import { useUserStatusesStore } from "../user-statuses/useUserStatusesStore";
-import { updateUser } from "../users/utils/userUtils";
 import { useIdentity } from "../auth/hooks/useIdentity";
+import { messageHandleMap } from "./messageHandleMap";
+import { objectToChatEvent } from "../chat-events/chatEvent";
 
-interface PendingAction {
-    type: "subscribe" | "unsubscribe";
-    entity: "chat" | "user";
+
+export interface PendingEntity {
+    type: "chat" | "user";
     id: number;
+}
+
+export interface PendingAction {
+    type: "subscribe" | "unsubscribe";
+    entity: PendingEntity;
 }
 
 interface SocketStore {
     socket: WebSocket | null;
     waitSocketOpen: boolean;
     isOpen: boolean,
-    localSubscriptions: Map<string, number>; //topic и сколько хуков подписанно
+    localSubscriptions: Map<PendingEntity, number>; //topic и сколько хуков подписанно
     pendingActions: PendingAction[];
     countCopiesOfHook: number;
     addCountCopiesOfHook: () => void;
@@ -22,8 +27,8 @@ interface SocketStore {
     setWaitSocketOpen: (wait: boolean) => void;
     setSocket: (socket: WebSocket | null) => void;
     setOpen: (open: boolean) => void;
-    subscribe: (topic: string) => void;
-    unsubscribe: (topic: string) => void;
+    subscribe: (entity: PendingEntity) => void;
+    unsubscribe: (entity: PendingEntity) => void;
     flushActions: () => void;
 }
 
@@ -37,7 +42,7 @@ export const useSocketStore = create<SocketStore>((set, get) => {
             // Найти последний противоположный (если есть) и удалить его — действия взаимоуничтожаются
             let oppositeIndex = -1;
             for (let i = pending.length - 1; i >= 0; i--) {
-                if (pending[i].topic === action.topic && pending[i].type === oppositeType) {
+                if (pending[i].entity === action.entity && pending[i].type === oppositeType) {
                     oppositeIndex = i;
                     break;
                 }
@@ -61,6 +66,17 @@ export const useSocketStore = create<SocketStore>((set, get) => {
         return !!socket && (socket.readyState === WebSocket.OPEN);
     }
 
+    function entityToTopic(entity: PendingEntity): string {
+        switch (entity.type) {
+            case "chat":
+                return `c:${entity.id}`;
+            case "user":
+                return `u:${entity.id}`;
+            default:
+                throw new Error(`Unknown entity type: ${entity.type}`);
+        }
+    }
+
     return {
         socket: null,
         isOpen: false,
@@ -68,7 +84,7 @@ export const useSocketStore = create<SocketStore>((set, get) => {
         setWaitSocketOpen: (wait: boolean) => {
             set({ waitSocketOpen: wait });
         },
-        localSubscriptions: new Map<string, number>(),
+        localSubscriptions: new Map<PendingEntity, number>(),
         pendingActions: [],
         countCopiesOfHook: 0,
         setSocket: (socket: WebSocket | null) => {
@@ -89,12 +105,12 @@ export const useSocketStore = create<SocketStore>((set, get) => {
             }
         },
         setOpen: (open: boolean) => set({ isOpen: open }),
-        subscribe: (topic: string) => {
-            pushAction({ type: "subscribe", topic });
+        subscribe: (entity: PendingEntity) => {
+            pushAction({ type: "subscribe", entity: entity });
             setTimeout(() => get().flushActions(), 0); //Gpt сказал так сделать, что бы изежать гонки
         },
-        unsubscribe: (topic: string) => {
-            pushAction({ type: "unsubscribe", topic });
+        unsubscribe: (entity: PendingEntity) => {
+            pushAction({ type: "unsubscribe", entity: entity });
             setTimeout(() => get().flushActions(), 0); //Gpt сказал так сделать, что бы изежать гонки
         },
         flushActions: () => {
@@ -109,40 +125,38 @@ export const useSocketStore = create<SocketStore>((set, get) => {
             // Копия Map локальных подписок, которую обновим в память после успешных отправок
             const newLocalSubs = new Map(state.localSubscriptions);
 
-            for (const { type, topic } of toFlush) {
-                if (type === "subscribe") {
-                    // Если ещё не подписаны на сервере (count === 0) — отправляем S
-                    const count = newLocalSubs.get(topic) || 0;
-                    if (count === 0) {
-                        try {
-                            socket.send("S" + topic);
-                        } catch (err) {
-                            console.error("Failed to send subscribe for", topic, err);
-                            // В случае ошибки можно ре-энкью или логировать — не ломаем цикл
+            try {
+                for (const { type, entity } of toFlush) {
+                    if (type === "subscribe") {
+                        // Если ещё не подписаны на сервере (count === 0) — отправляем S
+                        const count = newLocalSubs.get(entity) || 0;
+                        if (count === 0) {
+                            socket.send("S" + entityToTopic(entity));
                         }
-                    }
-                    newLocalSubs.set(topic, count + 1);
-                    console.log(`Flushed SUBSCRIBE: ${topic}`);
-                } else { // unsubscribe
-                    const count = newLocalSubs.get(topic) || 0;
-                    if (count <= 1) {
-                        // Если было 0/1 — по факту подписка уйдёт в 0, нужно отправить U (если count was 1)
-                        if (count === 1) {
-                            try {
-                                socket.send("U" + topic);
-                            } catch (err) {
-                                console.error("Failed to send unsubscribe for", topic, err);
+                        newLocalSubs.set(entity, count + 1);
+                        console.log(`Flushed SUBSCRIBE: ${entityToTopic(entity)}`);
+                    } else { // unsubscribe
+                        const count = newLocalSubs.get(entity) || 0;
+                        if (count <= 1) {
+                            // Если было 0/1 — по факту подписка уйдёт в 0, нужно отправить U (если count was 1)
+                            if (count === 1) {
+                                socket.send("U" + entityToTopic(entity));
+                                newLocalSubs.delete(entity);
+                            } else {
+                                // count === 0: у нас нет подписки — игнорируем (может быть двойное un/sub race)
                             }
-                            newLocalSubs.delete(topic);
                         } else {
-                            // count === 0: у нас нет подписки — игнорируем (может быть двойное un/sub race)
+                            // count >= 2 -> уменьшаем счетчик, не дергаем сервер
+                            newLocalSubs.set(entity, count - 1);
                         }
-                    } else {
-                        // count >= 2 -> уменьшаем счетчик, не дергаем сервер
-                        newLocalSubs.set(topic, count - 1);
+                        console.log(`Flushed UNSUBSCRIBE: ${entityToTopic(entity)}`);
                     }
-                    console.log(`Flushed UNSUBSCRIBE: ${topic}`);
                 }
+            } catch {
+                // В случае ошибки при отправке — ре-энкью все действия обратно в очередь
+                set((s) => ({ pendingActions: [...toFlush, ...s.pendingActions] }));
+                console.error("Error sending WebSocket messages, re-queuing actions");
+                return;
             }
 
             // Атомарно сохраняем обновлённую Map
@@ -250,86 +264,24 @@ export function useSocket() {
 
 
 function handleMessage(raw: string): void {
-    console.log("RAW:", raw);
-
-    let data: any;
+    let message: any;
     try {
-        data = JSON.parse(raw);
+        message = JSON.parse(raw);
     } catch (e) {
         console.error("Ошибка парсинга JSON:", raw, e);
         return;
     }
 
-    console.log("AFTER PARSE:", data, "type:", typeof data);
+    console.log("Получено сообщение от сокета:", message, "type:", typeof message);
 
-    if (!data.type) {
-        console.error("Received message without type: ", data);
+    if (!message.type) {
+        console.error("Received message without type: ", message);
         return;
     }
-    switch (data.type as string) {
-        case "status":
-            handleStatusUpdate(data as StatusUpdateDto);
-            break;
-        case "user_update":
-            handleUserUpdate(data.data as UserUpdateDto);
-            break;
-        default:
-            console.error("Received message with unknown type: ", data);
-            break;            
-    }
-}
-
-
-interface StatusUpdateDto {
-    type: "status";
-    session: string;
-    online: boolean;
-    userId: number;
-};
-
-function handleStatusUpdate(data: StatusUpdateDto): void {
-    if (!data) {
-        console.error("Received empty status update");
+    const handler = messageHandleMap.get(message.type);
+    if (!handler) {
+        console.error("No handler for message type:", message.type);
         return;
     }
-    if (data.type !== "status") {
-        console.error("Received unexpected status update type:", data.type);
-        return;
-    }
-    if (!data.session) {
-        console.error("session field missing");
-        return;
-    }
-    if (data.userId === undefined || data.userId === null || data.userId < 0) {
-        console.error("Field 'userId' is missing or invalid");
-        return;
-    }
-
-    console.log("Status update received: ", data);
-
-    if (data.online)
-        useUserStatusesStore.getState().addOnlineSession(data.userId, data.session);
-    else
-        useUserStatusesStore.getState().removeOnlineSession(data.userId, data.session);
-}
-
-interface UserUpdateDto {
-    id: number;
-    version: number;
-    username: string;
-    is_enabled: boolean; //Чуть позже
-    small_avatar: number;
-    large_avatar: number;
-    fullscreen_avatar: number;
-}
-
-function handleUserUpdate(data: UserUpdateDto) {
-    updateUser({
-        id: data.id,
-        version: data.version,
-        username: data.username,
-        smallAvatarId: data.small_avatar,
-        largeAvatarId: data.large_avatar,
-        fullscreenAvatarId: data.fullscreen_avatar
-    });
+    handler(message.data);
 }

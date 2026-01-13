@@ -4,9 +4,24 @@
     height: 32px;
 }
 
+.avatar-container-small-medium {
+    width: 48px;
+    height: 48px;
+}
+
+.avatar-container-medium {
+    width: 64px;
+    height: 64px;
+}
+
 .avatar-container-large {
     width: 128px;
     height: 128px;
+}
+
+.avatar-container-large-xl {
+    width: 200px;
+    height: 200px;
 }
 
 .avatar-container-xl {

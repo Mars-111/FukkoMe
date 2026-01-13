@@ -25,13 +25,20 @@ public class ChatRoleAccessFlags {
     public static final long CREATE_ROLES                = 1L << 21;
     public static final long OWNER                       = 1L << 22;
 
-    public static long ownerAccessFlag() {
+    public static long ownerAccessFlags() {
         return  WRITE + SEND_TEXT + SEND_FILE + SEND_STICKER +
                 SEND_REACTIONS + REPLY_MESSAGE + FORWARDED_MESSAGE +
                 PING_USER + PING_ROLE + PING_ALL + PIN_MESSAGE +
                 DELETE_YOUR_MESSAGE + EDIT_YOUR_MESSAGE + DELETE_OTHER_PEOPLE_MESSAGE +
                 CHANGE_CHAT_INFO + REVIEW_MEMBERSHIP_REQUEST + BAN_MEMBERS + MUTE_MEMBERS +
                 ASSIGN_ROLE + CREATE_ROLES + OWNER;
+    }
+
+    public static long defaultRoleAccessFlags() {
+        return  WRITE + SEND_TEXT + SEND_FILE + SEND_STICKER +
+                SEND_REACTIONS + REPLY_MESSAGE + FORWARDED_MESSAGE +
+                PING_USER + PING_ROLE + PING_ALL + PIN_MESSAGE +
+                DELETE_YOUR_MESSAGE + EDIT_YOUR_MESSAGE;
     }
 
 

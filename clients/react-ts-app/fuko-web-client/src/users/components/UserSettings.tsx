@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import { updateMeRequest, updateMyAvatarRequest, type UpdateMeBodyInterface, type UserProfileResponse } from "../internal/api/userApi";
 import InternalLogicError from "../../general/errors/classes/internalLogicError";
 import { useUploaderFile } from "../../files/hooks/useUploadFile";
-import { updateUser } from "../utils/userUtils";
+import { updateUser, userFound } from "../utils/userUtils";
 import type { User } from "../models/user";
 import Modal from "react-modal";
 import { AvatarCropModal } from "../../files/components/AvatarCropModal";
@@ -128,18 +128,18 @@ function Settings({ userId }: { userId: number }) {
             <h1>User Settings:</h1>
             <form id="update-user" onSubmit={formClick}>
                 <div className="avatar-container-xl">
-                    {user && <LargeUserAvatar user={user} circle />}
+                    {userFound(user) && <LargeUserAvatar user={user} circle />}
                 </div>
                 <div>
                     <label htmlFor="avatar">Avatar: </label>
                     <input type="file" id="avatar" name="avatar" accept="image/*" ref={avatarInputRef} onChange={handleAvatarChange} />
                 </div>
 
-                {user && <p>avatar small id: {user.smallAvatarId}</p>}
-                {user && <p>avatar large id: {user.largeAvatarId}</p>}
-                {user && <p>avatar fullscreen id: {user.fullscreenAvatarId}</p>}
+                {userFound(user) && <p>avatar small id: {user.smallAvatarId}</p>}
+                {userFound(user) && <p>avatar large id: {user.largeAvatarId}</p>}
+                {userFound(user) && <p>avatar fullscreen id: {user.fullscreenAvatarId}</p>}
 
-                {user && <p>version: {user.version}</p>}
+                {userFound(user) && <p>version: {user.version}</p>}
 
                 <div>
                     <Modal isOpen={avatarCropModalIsOpen} onRequestClose={() => setAvatarCropModalIsOpen(false)}>
@@ -153,7 +153,7 @@ function Settings({ userId }: { userId: number }) {
 
                 <div>
                     <label htmlFor="username">Username: </label>
-                    <input type="text" id="username" name="username" defaultValue={user?.username} ref={usernameInputRef} required/>
+                    <input type="text" id="username" name="username" defaultValue={userFound(user) ? user.username : ""} ref={usernameInputRef} required/>
                 </div>
                 <div>
                     <button type="submit">Сохранить</button>

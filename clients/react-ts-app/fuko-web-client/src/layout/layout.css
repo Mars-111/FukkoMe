@@ -1,0 +1,120 @@
+
+.layout-wrapper {
+    height: 100vh;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: none;
+}
+
+.messenger-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 12px;
+    height: 90%;
+    width: 95%;
+}
+
+
+
+
+/* -------------------- TABS -------------------- */
+
+.layout-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 10px;
+    margin-right: 6px;
+    border-radius: 8px;
+
+    background: #1a1f27;
+    color: #a9b7c6;
+    font-size: 14px;
+    cursor: pointer;
+
+    user-select: none;
+    transition: background 0.15s, color 0.15s;
+}
+
+.layout-tab:hover {
+    background: #222832;
+    color: white;
+}
+
+.layout-tab.active {
+    background: #2d3a4a;
+    color: #ffffff;
+    font-weight: 500;
+    box-shadow: inset 0 0 0 1px #3b4652;
+}
+
+.layout-tab-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.layout-tab-close {
+    background: transparent;
+    border: none;
+    color: #7e8a98;
+    font-size: 16px;
+    line-height: 12px;
+    cursor: pointer;
+
+    padding: 0 3px;
+    border-radius: 4px;
+}
+
+.layout-tab-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* -------------------- COLUMN STRUCTURE -------------------- */
+
+.layout-left,
+.layout-center,
+.layout-right {
+    background: #0b0f14;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.layout-left-tabs,
+.layout-center-tabs,
+.layout-right-tabs {
+    display: flex;
+    padding: 6px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #222 transparent;
+}
+
+.layout-left-tabs::-webkit-scrollbar,
+.layout-center-tabs::-webkit-scrollbar,
+.layout-right-tabs::-webkit-scrollbar {
+    height: 6px;
+}
+
+.layout-left-tabs::-webkit-scrollbar-thumb,
+.layout-center-tabs::-webkit-scrollbar-thumb,
+.layout-right-tabs::-webkit-scrollbar-thumb {
+    background: #222;
+    border-radius: 4px;
+}
+
+/* Панель контента */
+.layout-panel {
+    flex: 1;
+    overflow: auto;
+    padding: 6px;
+    border-radius: 12px;
+    background: #0b0f14;
+    color: white;
+}

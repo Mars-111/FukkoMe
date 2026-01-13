@@ -34,21 +34,13 @@ public class KafkaProducerService {
         }
     }
 
-    public void sendTest(String topic, String message) {
-        kafkaTemplate.send(topic, message);
-    }
+//    public void sendCreateChat(Chat chat) {
+//        try {
+//            String jsonChat = objectMapper.writeValueAsString(chat); //ТУТ ЯВНО НУЖНО ТОЛЬКО ID
+//            kafkaTemplate.send("new-chats", jsonChat);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-    public void sendCreateChat(Chat chat) {
-        try {
-            String jsonChat = objectMapper.writeValueAsString(chat);
-            kafkaTemplate.send("new-chats", jsonChat);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void sendJoinChatUser(Long userId, Long chatId) {
-        String data = "{\"user_id\": " + userId + ", \"chat_id\": " + chatId + "}";
-        kafkaTemplate.send("join-chat-users", data);
-    }
 }

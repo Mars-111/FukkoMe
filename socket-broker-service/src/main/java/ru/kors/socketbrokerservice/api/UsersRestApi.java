@@ -18,7 +18,7 @@ import java.util.Set;
 public class UsersRestApi {
 
     private final RestClient restClient;
-    private final String baseUrl = "https://chats.mars-ssn.ru/internal/api/users";
+    private final String baseUrl = "https://chats.mars-ssn.ru/internal/api/chats";
 
     private static final ParameterizedTypeReference<Set<User>> USER_LIST_TYPE_REFERENCE =
             new ParameterizedTypeReference<>() {
@@ -33,7 +33,7 @@ public class UsersRestApi {
     public Set<Long> getUserChatsIds(Long userId) {
         try {
             return restClient.get()
-                    .uri(baseUrl + "/" + userId + "/chatsIds")
+                    .uri(baseUrl + "/user-chats/" + userId + "/ids")
                     .retrieve()
                     .body(CHATS_IDS_LIST_TYPE_REFERENCE);
         } catch (RestClientException e) {

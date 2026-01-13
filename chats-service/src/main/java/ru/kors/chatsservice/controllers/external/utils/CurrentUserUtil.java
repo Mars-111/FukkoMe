@@ -28,6 +28,6 @@ public class CurrentUserUtil {
             }
         }
 
-        throw new NotFoundEntityException("userId not found in token");
+        throw new NotAuthException("not found userId in token");
     }
 }

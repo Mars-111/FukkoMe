@@ -37,6 +37,16 @@ html, body {
   line-height: 1.5;
 }
 
+.general-menu-wrapper {
+  background: #314763;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -93,6 +103,36 @@ a:focus-visible {
   color: var(--accent-400);
 }
 
+
+.menu-options .menu-link {
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-300);
+  font-weight: 600;
+  letter-spacing: .2px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .2s ease, color .2s ease, transform .12s ease;
+}
+.menu-options .menu-link:hover {
+  background: var(--bg-700);
+  color: var(--text-100);
+  transform: translateY(-1px);
+}
+.menu-options .menu-link:active {
+  transform: translateY(0);
+  background: var(--bg-650);
+  color: var(--accent-400);
+}
+.menu-options .menu-link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 6px;
+}
+
+
 /* Блок с пользователем */
 .user-info {
   display: flex;
@@ -109,10 +149,12 @@ a:focus-visible {
 
 /* Основная рабочая область */
 .action-windows {
-  width: 100%;
-  padding: 16px;
-  max-width: 1200px;
-  margin: 0 auto;
+    width: 100%;
+    height: 100%;
+}
+
+.action-content {
+    margin: auto; /* центрирует по обоим осям без сплющивания */
 }
 
 .action-windows h1 {

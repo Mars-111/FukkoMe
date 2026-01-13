@@ -1,27 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useIdentity } from "../../auth/hooks/useIdentity";
 import type { Chat, ChatType } from "../models/chat";
-import { createChatRequest, getMyChatsRequest, type CreateChatRequestBody } from "../internal/api/chatsApi";
-import { getChatByLikeName, getChatByLikeTag, getMyChats } from "../utils/ChatUtils";
-
-
+import { createChatRequest, type CreateChatRequestBody } from "../internal/api/chatsApi";
+import { createChat, getChatsByLikeName, getChatsByLikeTag, getMyChats } from "../utils/ChatUtils";
 
 
 export function TestChatsPage() {
     const { accessToken } = useIdentity();
     const [createResponse, setCreateResponse] = useState<Chat | null>(null);
-    const [myChatIds, setMyChatIds] = useState<number[]>([]);
-    const requestedMyChatsRef = useRef<boolean>(false);
     const [findChatsResponse, setFindChatsResponse] = useState<Chat[]>([]);
-
-    useEffect(() => {
-        if (!accessToken) return;
-        if (requestedMyChatsRef.current) return;
-        getMyChats(accessToken).then((chatIds: number[]) => {
-            setMyChatIds(chatIds);
-            requestedMyChatsRef.current = true;
-        });
-    }, [accessToken]);
 
     return (
         <div>
@@ -48,22 +35,11 @@ export function TestChatsPage() {
                         <p>tag: {createResponse.tag}</p>
                         <p>description: {createResponse.description}</p>
                         <p>type: {createResponse.type}</p>
+                        <p>small avatar id: {createResponse.smallAvatarId}</p>
+                        <p>large avatar id: {createResponse.largeAvatarId}</p>
+                        <p>fullscreen avatar id: {createResponse.fullscreenAvatarId}</p>
                     </div>
                 ) || <p>No chat created yet.</p>}
-            </div>
-            <div className="get-my-chats">
-                <h2>My Chats:</h2>
-                {myChatIds.length > 0 ? (
-                    <ul>
-                        {myChatIds.map((chatId) => (
-                            <li key={chatId}>
-                                Chat ID: {chatId}
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>No chats found.</p>
-                )}
             </div>
             <div className="find-chats">
                 <form onSubmit={(event) => handleFindChats(event, setFindChatsResponse)}>
@@ -74,8 +50,8 @@ export function TestChatsPage() {
                 <div className="find-response">
                     {findChatsResponse.length > 0 ? (
                         <ul>
-                            {findChatsResponse.map((chatId) => (
-                                <li key={chatId}>Chat ID: {chatId}</li>
+                            {findChatsResponse.map((chat) => (
+                                <li key={chat.id}>Chat ID: {chat.id}</li>
                             ))}
                         </ul>
                     ) : (
@@ -104,7 +80,7 @@ async function handleCreateChat(event: React.FormEvent<HTMLFormElement>, accessT
     };
 
     try {
-        const createdChat = await createChatRequest(createChatRequestBody, accessToken);
+        const createdChat = await createChat(createChatRequestBody, accessToken);
         console.log("Chat created:", createdChat);
         setCreateResponse(createdChat);
     } catch (error) {
@@ -123,10 +99,12 @@ async function handleFindChats(event: React.FormEvent<HTMLFormElement>, setChats
     let responceChats: Chat[] = [];
 
     try {
-        const chatsByTag: Promise<Chat[]> = getChatByLikeTag(name, 10);
-        const chatsByName: Promise<Chat[]> = getChatByLikeName(name, 10);
-        
+        const chatsByTag: Promise<Chat[]> = getChatsByLikeTag(name, 10);
+        const chatsByName: Promise<Chat[]> = getChatsByLikeName(name, 10);
+        console.log("Finding chats by tag: ", (await chatsByTag).length);
+        console.log("Finding chats by name: ", (await chatsByName).length);
         responceChats = (await chatsByTag).concat(await chatsByName);
+        console.log("Found chats: ", responceChats.length);
     } catch (error) {
         console.error("Error finding chats:", error);
         responceChats = [];

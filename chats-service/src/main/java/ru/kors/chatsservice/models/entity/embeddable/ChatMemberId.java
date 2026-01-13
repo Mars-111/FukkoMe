@@ -12,11 +12,10 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class UserChatRoleId implements Serializable {
+public class ChatMemberId implements Serializable {
+    @Column(name = "chat_id", nullable = false)
+    private Long chatId;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
-
-    @Column(name = "chat_id", nullable = false)
-    private Long chatId;
 }

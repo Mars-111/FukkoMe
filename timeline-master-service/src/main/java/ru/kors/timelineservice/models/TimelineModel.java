@@ -1,26 +1,36 @@
 package ru.kors.timelineservice.models;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
+import java.util.concurrent.atomic.AtomicLong;
 
 public class TimelineModel {
-    private final AtomicInteger timelineId;
-    private final AtomicInteger unsavedChanges = new AtomicInteger(0);
+    private final AtomicLong messageTimelineId;
+    private final AtomicLong eventTimelineId;
+    private final AtomicLong unsavedChanges = new AtomicLong(0);
 
-    public TimelineModel(int initial) {
-        this.timelineId = new AtomicInteger(initial);
+    public TimelineModel(long initialMessageTimelineId, long initialEventTimelineId) {
+        this.messageTimelineId = new AtomicLong(initialMessageTimelineId);
+        this.eventTimelineId = new AtomicLong(initialEventTimelineId);
     }
 
-    public int incrementAndGet() {
+    public long incrementMessageTimelineAndGet() {
         unsavedChanges.incrementAndGet();
-        return timelineId.incrementAndGet();
+        return messageTimelineId.incrementAndGet();
     }
 
-    public int getTimelineId() {
-        return timelineId.get();
+    public long incrementEventTimelineAndGet() {
+        unsavedChanges.incrementAndGet();
+        return eventTimelineId.incrementAndGet();
     }
 
-    public int getUnsavedChanges() {
+    public long getMessageTimelineId() {
+        return messageTimelineId.get();
+    }
+
+    public long getEventTimelineId() {
+        return eventTimelineId.get();
+    }
+
+    public long getUnsavedChanges() {
         return unsavedChanges.get();
     }
 

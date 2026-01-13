@@ -4,11 +4,13 @@ import type { Chat } from "../../models/chat";
 
 export class ChatCacheDatabase extends Dexie {
     chats!: Table<Chat, number>;
+    // myChatIds!: Table<number, number>; //Для быстрого отображения (каждый заход мы будем запрашивать и переопределять наши чаты)
 
     constructor() {
         super("ChatCache");
         this.version(1).stores({
-            chats: "id"
+            chats: "id",
+            // myChatIds: "id" 
         });
     }
 }

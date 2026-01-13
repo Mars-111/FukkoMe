@@ -1,25 +1,22 @@
-import { useNavigate } from "react-router-dom";
 import type { RecentEntity } from "../internal/db/cacheRecentEntityDb";
-import { useRecentUsers } from "../utils/recentEntityHooks";
-import { UserCell } from "./EntitiesCells";
+import { useRecentEntities } from "../utils/recentEntityHooks";
+import { ChatCell, ChatFromDbCell, UserCell, UserFromDbCell } from "./EntitiesCells";
 import './RecentEntities.css'
 
 
 
-export function RecentEntities({ limit, baseOpenEntityUrl }: { limit: number, baseOpenEntityUrl?: string }) {
-    const recent: RecentEntity[] | undefined = useRecentUsers(limit);
-    const navigate = useNavigate();
+export function RecentEntities({ limit, onClick, onMouseDown }: { limit: number, onClick?: (recent: RecentEntity) => void, onMouseDown?: (recent: RecentEntity) => void}) {
+    const recent: RecentEntity[] | undefined = useRecentEntities(limit);
 
     return (
         <div className="recent-container">
             {!recent && <p>Загрука недавних пользлвателей</p>}
             {recent && recent.map(r => {
                 if (r.type === 'user') {
-                    return <UserCell key={r.idInRecentDb} id={r.entityId} onClick={() => { navigate(`${baseOpenEntityUrl || "/app"}/user/${r.entityId}`) }} />
+                    return <UserFromDbCell key={r.idInRecentDb} id={r.entityId} onClick={() => onClick?.(r)} onMouseDown={() => onMouseDown?.(r)} avatarSize="small-medium" />
                 }
-                else {
-                    console.warn("Чаты пока не готовы")
-                    return null;
+                else if (r.type === 'chat') {
+                    return <ChatFromDbCell key={r.idInRecentDb} id={r.entityId} onClick={() => onClick?.(r)} onMouseDown={() => onMouseDown?.(r)} avatarSize="small-medium" />
                 }
             })}
         </div>

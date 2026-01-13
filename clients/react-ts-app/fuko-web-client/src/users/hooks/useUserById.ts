@@ -7,42 +7,36 @@ import { type User } from "../models/user";
 import { useIdentity } from "../../auth/hooks/useIdentity";
 
 
-export function useUserById(userId: number) {
+export function useUserById(userId: number): User | "not found" | "start state" {
     const { myUserId } = useIdentity();
     const stateMetaCache = useUserCacheMetaStore();
-    const userFromDb: User | undefined = useLiveQuery(() => {
+    const userFromDb: User | undefined | "start state" = useLiveQuery(() => {
         if (!userId) return undefined;
         return userDb.users.get(userId);
-    }, [userId]);
+    }, [userId], "start state");
 
-    const [user, setUser] = useState<User | null | undefined>(undefined);
+    const [user, setUser] = useState<User | "not found" | "start state">("start state");
     const isNotFirstSyncRef = useRef<boolean>(false);
-
-    const hasGeneralChatsWithUserRef = 
-        useRef<boolean>(stateMetaCache.cachedGeneralChatsWithUsersMap.has(userId));
-    
-    useEffect(() => {
-        hasGeneralChatsWithUserRef.current = stateMetaCache.cachedGeneralChatsWithUsersMap.has(userId);
-    }, [stateMetaCache]);
 
     //активируем обновления из бд
     useEffect(() => {
-        let userState: User | null | undefined = userFromDb;
+        let userState: User | undefined | "start state" = userFromDb;
+        if (userState === "start state") return;
         if (userState === undefined && isNotFirstSyncRef.current === true) {
-            userState = null;
+            setUser("not found");
+            return;
         }
-
-        setUser(userState);
-        isNotFirstSyncRef.current = true;
-    }, [userFromDb]);
+        else if (userState !== undefined) {
+            setUser(userState);
+        }
+    }, [userFromDb, isNotFirstSyncRef.current]);
 
     useEffect(() => {
-        console.log("user: ", user);
-        if (user === undefined || (!userIsActual(userId, myUserId || undefined) && (!isNotFirstSyncRef || hasGeneralChatsWithUserRef.current))) {
+        if (userFromDb === undefined && !userIsActual(userId, myUserId || undefined)) {
             syncUser(userId);
             isNotFirstSyncRef.current = false;
         }
-    }, [stateMetaCache, user]);
+    }, [stateMetaCache, userFromDb]);
 
     return user;
 }

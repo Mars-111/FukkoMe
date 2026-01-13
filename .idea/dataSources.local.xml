@@ -16,7 +16,7 @@
       </schema-mapping>
     </data-source>
     <data-source name="0@localhost" uuid="77c22023-5585-4dcc-8dec-3279fcfef313">
-      <database-info product="Redis Standalone" version="7.2.7" jdbc-version="4.2" driver-name="Redis JDBC Driver" driver-version="1.5" dbms="REDIS" exact-version="7.2.7" exact-driver-version="1.5" />
+      <database-info product="Redis Standalone" version="7.4.2" jdbc-version="4.2" driver-name="Redis JDBC Driver" driver-version="1.5" dbms="REDIS" exact-version="7.4.2" exact-driver-version="1.5" />
       <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed" />
       <schema-mapping>
         <introspection-scope>
@@ -25,6 +25,20 @@
       </schema-mapping>
     </data-source>
     <data-source name="chats@localhost" uuid="62fedaa5-0e37-4f39-94a2-2145580d18cb">
+      <database-info product="PostgreSQL" version="16.6 (Debian 16.6-1.pgdg120+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="16.6" exact-driver-version="42.7">
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
+      <user-name>admin</user-name>
+      <schema-mapping>
+        <introspection-scope>
+          <node kind="database" qname="@">
+            <node kind="schema" qname="@" />
+          </node>
+        </introspection-scope>
+      </schema-mapping>
+    </data-source>
+    <data-source name="order_db@localhost" uuid="3eb10c39-b218-4fb9-a48a-7be5ce50ef8d">
       <database-info product="PostgreSQL" version="16.6 (Debian 16.6-1.pgdg120+1)" jdbc-version="4.2" driver-name="PostgreSQL JDBC Driver" driver-version="42.7.3" dbms="POSTGRES" exact-version="16.6" exact-driver-version="42.7">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>

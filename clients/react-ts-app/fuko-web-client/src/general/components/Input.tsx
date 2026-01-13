@@ -39,13 +39,14 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
     label?: string;
     error?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onBlur?: () => void; 
     autoFocus?: boolean; // флаг для автоматического фокуса
     leftIcon?: React.ReactNode;
     rightIcon?: React.ReactNode;
     value?: string;
 }
 
-export const Input: React.FC<InputProps> = ({ cacheKey, label, error, onChange, className = "", autoFocus, leftIcon, rightIcon, value, ...props }) => {
+export const Input: React.FC<InputProps> = ({ cacheKey, label, error, onChange, className = "", autoFocus, leftIcon, rightIcon, value, onBlur, ...props }) => {
     const getCachedByCacheKey = useInputCache((state) => state.getCachedByCacheKey);
     const setCacheKey = useInputCache((state) => state.setCacheKey);
     
@@ -66,17 +67,27 @@ export const Input: React.FC<InputProps> = ({ cacheKey, label, error, onChange, 
         onChange?.(e);
     },[cacheKey, setCacheKey, onChange]);
 
+    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Escape") {
+            localRef.current?.blur();
+            onChange?.({ target: { value: "" } } as any);
+            onBlur?.();
+        }
+    }, [onChange, onBlur]);
+
     return (
         <div className={`input-container ${className}`}>
             {label && <label className="input-label">{label}</label>}
             <div className={`input-wrapper ${error ? "input-error" : ""}`}>
                 {leftIcon && <div className="input-icon left">{leftIcon}</div>}
-                <input
+                <input 
                     className="input-field"
                     onChange={onChangeAndSaveCache}
+                    onBlur={onBlur}
                     ref={localRef}
                     defaultValue={!value && cacheKey ? getCachedByCacheKey(cacheKey)?.text ?? undefined : undefined}
                     value={value}
+                    onKeyDown={handleKeyDown}
                     {...props}
                 />
                 {rightIcon && <div className="input-icon right">{rightIcon}</div>}

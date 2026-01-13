@@ -1,5 +1,6 @@
 package ru.kors.socketbrokerservice.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,7 @@ import ru.kors.socketbrokerservice.models.entity.Message;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -346,13 +345,29 @@ public class SessionManager {
             log.warn("No subscribers for chat {}", message.getChatId());
             return;
         }
+        
         log.info("user size: {}", users.size());
+
+        // Формируем {"type": "chat_message", "data": event}
+        final String json;
+        try {
+            json = objectMapper.writeValueAsString(
+                    Map.of(
+                            "type", "chat_event",
+                            "data", message
+                    )
+            );
+        } catch (JsonProcessingException ex) {
+            log.error("Error parsing chat event", ex);
+            return;
+        }
+
         for (UserSession userSession : users) {
             WebSocketSession session = userSession.getSession();
             if (session.isOpen()) {
                 log.info("sending message to {}", userSession.getUserId());
                 try {
-                    session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
+                    session.sendMessage(new TextMessage(json));
                 } catch (IOException e) {
                     log.error("Error sending message to session {}: {}", session.getId(), e.getMessage());
                 }
@@ -366,19 +381,36 @@ public class SessionManager {
             log.warn("No subscribers for chat {}", event.getChatId());
             return;
         }
+
         log.info("user size: {}", users.size());
+
+        // Формируем {"type": "chat_event", "data": event}
+        final String json;
+        try {
+            json = objectMapper.writeValueAsString(
+                    Map.of(
+                            "type", "chat_event",
+                            "data", event
+                    )
+            );
+        } catch (JsonProcessingException ex) {
+            log.error("Error parsing chat event", ex);
+            return;
+        }
+
         for (UserSession userSession : users) {
             WebSocketSession session = userSession.getSession();
-            if (session.isOpen()) {
-                log.info("sending event to {}", userSession.getUserId());
-                try {
-                    session.sendMessage(new TextMessage(objectMapper.writeValueAsString(event)));
-                } catch (IOException e) {
-                    log.error("Error sending event to session {}: {}", session.getId(), e.getMessage());
-                }
+            if (!session.isOpen()) continue;
+
+            log.info("sending event to {}", userSession.getUserId());
+            try {
+                session.sendMessage(new TextMessage(json));
+            } catch (IOException e) {
+                log.error("Error sending event to session {}: {}", session.getId(), e.getMessage());
             }
         }
     }
+
 
     public void subscribeUserToChat(Long userId, String subscriptionKey) {
         if (!sessionsByUser.containsKey(userId)) {
@@ -395,4 +427,22 @@ public class SessionManager {
         }
     }
 
+    public void sendPersonalMessage(Long userId, String messageJson) {
+        Set<UserSession> userSessions = sessionsByUser.get(userId);
+        if (userSessions == null || userSessions.isEmpty()) {
+            log.warn("No sessions found for user {}", userId);
+            return;
+        }
+        for (UserSession userSession : userSessions) {
+            WebSocketSession session = userSession.getSession();
+            if (session.isOpen()) {
+                log.info("sending personal message to {}", userSession.getUserId());
+                try {
+                    session.sendMessage(new TextMessage(messageJson));
+                } catch (IOException e) {
+                    log.error("Error sending personal message to session {}: {}", session.getId(), e.getMessage());
+                }
+            }
+        }
+    }
 }

@@ -1,6 +1,6 @@
 import { type User } from "../models/user";
 import { useUserById } from "../hooks/useUserById";
-import { uploadUserCreatedAt } from "../utils/userUtils";
+import { uploadUserCreatedAt, userFound } from "../utils/userUtils";
 import { useCallback, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LargeUserAvatar } from "./Avatar";
@@ -14,7 +14,7 @@ import { addRecentEntity } from "../../general/utils/recentEntityUtils";
 
 export function UserInfo({ userId }: { userId: number }) {
     const { myUserId } = useIdentity();
-    const user: User | null | undefined = useUserById(userId);
+    const user = useUserById(userId);
     const socket = useSocket();
     const userStatus = useUserStatus(userId);
     const navigate = useNavigate();
@@ -31,15 +31,15 @@ export function UserInfo({ userId }: { userId: number }) {
 
     useEffect(() => {
         if (userId && socket.isOpen) {
-            socket.subscribe(`u:${userId}`);
+            socket.subscribe({ type: "user", id: userId });
             return () => {
-                socket.unsubscribe(`u:${userId}`);
+                socket.unsubscribe({ type: "user", id: userId });
             }
         }
     }, [userId, socket.isOpen]);
 
     useEffect(() => {
-        if (user && !user.createdAt)
+        if (userFound(user) && !user.createdAt)
             uploadUserCreatedAt(userId);
     }, [user]);
 
@@ -57,16 +57,16 @@ export function UserInfo({ userId }: { userId: number }) {
     return (
         <div className="user-info-container">
             <div className="user-info-avatar">
-                {user && <LargeUserAvatar user={user} circle />}
+                {userFound(user) && <LargeUserAvatar user={user} circle />}
             </div>
             <div className="user-details">
                 <h1>User Info:</h1>
                 <p>User Id: {userId}</p>
-                <p>Avatar large Id: {user ? user.largeAvatarId : "Loading..."}</p>
-                <p>Version: {user ? user.version : "Loading..."}</p>
-                <p>Username: {user ? user.username : "Loading..."}</p>
+                <p>Avatar large Id: {userFound(user) ? user.largeAvatarId : "Loading..."}</p>
+                <p>Version: {userFound(user) ? user.version : "Loading..."}</p>
+                <p>Username: {userFound(user) ? user.username : "Loading..."}</p>
                 <p>Status: {statusToString()}</p>
-                <p>Created At: {user && user.createdAt ? new Date(user.createdAt).toLocaleString() : "Loading..."}</p>
+                <p>Created At: {userFound(user) && user.createdAt ? new Date(user.createdAt).toLocaleString() : "Loading..."}</p>
             </div>
             {userId === myUserId && 
                 <div className="user-info-owner-details">
@@ -75,4 +75,20 @@ export function UserInfo({ userId }: { userId: number }) {
             }
         </div>
    );
+}
+
+
+export function UserInfoAndSubToUser({ userId }: { userId: number }) {
+    const { subscribe, unsubscribe } = useSocket();
+
+    useEffect(() => {
+        subscribe({ id: userId, type: "user" });
+        return () => {
+            unsubscribe({ id: userId, type: "user" });
+        };
+    }, []);
+
+    return (
+        <UserInfo userId={userId} />
+    );
 }

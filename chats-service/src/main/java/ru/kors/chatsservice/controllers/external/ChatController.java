@@ -4,17 +4,26 @@ import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.kors.chatsservice.controllers.external.dto.ChatMembersDTO;
+import ru.kors.chatsservice.controllers.external.dto.UpdateAvatarDTO;
 import ru.kors.chatsservice.controllers.external.utils.CurrentUserUtil;
 import ru.kors.chatsservice.controllers.external.dto.CreateChatDTO;
+import ru.kors.chatsservice.controllers.internal.dto.UpdateChatDTO;
 import ru.kors.chatsservice.models.entity.Chat;
-import ru.kors.chatsservice.models.entity.ChatRole;
-import ru.kors.chatsservice.models.entity.JoinRequest;
+import ru.kors.chatsservice.models.entity.ChatEvent;
 import ru.kors.chatsservice.models.entity.projection.ChatInfoProjection;
+import ru.kors.chatsservice.models.entity.projection.ChatMemberInfo;
+import ru.kors.chatsservice.repositories.ChatRepository;
+import ru.kors.chatsservice.repositories.dto.ChatMembersPage;
+import ru.kors.chatsservice.repositories.dto.UserRolePairProjection;
 import ru.kors.chatsservice.services.*;
+import ru.kors.chatsservice.utils.ChatMemberBinaryEncoder;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/chats")
@@ -27,16 +36,17 @@ public class ChatController  {
     private final CurrentUserUtil currentUserUtil;
     private final ChatRoleService chatRoleService;
     private final KafkaProducerService kafkaProducerService;
-
-    @GetMapping
-    public List<Chat> getAllChats() {
-        return chatService.findAll();
-    }
+    private final ChatEventService chatEventService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Chat> getChatById(@PathVariable Long id) {
-        Chat chat = chatService.findById(id);
+    public ResponseEntity<ChatInfoProjection> getChatById(@PathVariable Long id) {
+        ChatInfoProjection chat = chatService.findById(id);
         return ResponseEntity.ok(chat);
+    }
+
+    @GetMapping("/{id}/version")
+    public ResponseEntity<Integer> getChatVersionById(@PathVariable Long id) {
+        return ResponseEntity.ok(chatService.findVersionById(id));
     }
 
     @GetMapping("/tag/{chatTag}")
@@ -58,9 +68,9 @@ public class ChatController  {
     }
 
     @PostMapping
-    public Chat createChat(@RequestBody CreateChatDTO chatDTO) {
+    public ResponseEntity<ChatInfoProjection> createChat(@RequestBody CreateChatDTO chatDTO) {
         Long userId = currentUserUtil.getCurrentUserId();
-        return chatService.createChat(chatDTO, userId);
+        return ResponseEntity.ok(chatService.createChat(chatDTO, userId));
     }
 
     @GetMapping("/me/chats")
@@ -69,14 +79,79 @@ public class ChatController  {
         return ResponseEntity.ok(chatService.findAllByUserId(userId));
     }
 
-//    @PutMapping("/{chatId}")
-//    public ResponseEntity<Chat> changeChat(@PathVariable Long chatId, @RequestBody ChangeChatDTO changeChatDTO) {
-//        if (!chatService.isOwner(chatId, currentUserUtil.getCurrentUser().getId())) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    @PutMapping("/{chatId}/avatar")
+    public ResponseEntity<ChatInfoProjection> updateChatAvatar(@PathVariable Long chatId, @RequestBody UpdateAvatarDTO dto) {
+        chatService.updateAvatar(chatId, currentUserUtil.getCurrentUserId(), dto);
+        return ResponseEntity.ok(chatService.findById(chatId));
+    }
+
+    @PutMapping("/{chatId}")
+    public ResponseEntity<ChatInfoProjection> updateChat(@PathVariable Long chatId, @RequestBody UpdateChatDTO updateChatDTO) {
+        chatService.update(chatId, currentUserUtil.getCurrentUserId(), updateChatDTO);
+        ChatInfoProjection chat = chatService.findById(chatId);
+        return ResponseEntity.ok(chat);
+    }
+
+    @GetMapping("/{chatId}/members/count")
+    public ResponseEntity<Integer> getMembers(@PathVariable Long chatId) {
+        return ResponseEntity.ok(chatService.getCountMember(chatId));
+    }
+
+    @GetMapping("/{chatId}/members/top-ranked")
+    public ResponseEntity<List<UserRolePairProjection>> getTopRankRoleMembers(@PathVariable Long chatId, @PathParam(value = "limit") Integer limit) {
+        if (limit > 100) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+        }
+        return ResponseEntity.ok(chatRoleService.getTopRankRoleMembers(chatId, limit));
+    }
+
+//    @GetMapping("/{chatId}/members")
+//    public ResponseEntity<ChatMembersPage> getUserPages(@PathVariable Long chatId, @PathParam(value = "offset") Integer offset, @PathParam(value = "limit") Integer limit) {
+//        if (limit > 1000) {
+//            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
 //        }
-//        Chat chat = chatService.changeChat(chatId, changeChatDTO);
-//        return ResponseEntity.ok(chat);
+//        return ResponseEntity.ok(chatRoleService.getChatMembersByPages(chatId, offset, limit));
 //    }
+
+    @GetMapping("/{chatId}/members")
+    public ResponseEntity<?> getAllUserIdsAndRoleIds(@PathVariable Long chatId, @RequestParam(value = "b", required = false) boolean binary) {
+        List<ChatMemberInfo> list = chatRoleService.getUserIdsAndRolesByChatId(chatId);
+
+        if (!binary) {
+            // Обычный JSON
+            return ResponseEntity.ok(list);
+        }
+
+        // Бинарный формат: [ [userId, roleId], ... ] → byte[]
+        byte[] bytes = ChatMemberBinaryEncoder.encode(list);
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(bytes);
+    }
+
+    @PostMapping("/{chatId}/join")
+    public ResponseEntity<Void> joinToChat(@PathVariable Long chatId) {
+        chatService.joinToChat(chatId, currentUserUtil.getCurrentUserId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{chatId}/exit")
+    public ResponseEntity<Void> exitChat(@PathVariable Long chatId) {
+        chatService.exitChat(chatId, currentUserUtil.getCurrentUserId());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{chatId}/events")
+    public ResponseEntity<List<ChatEvent>> getChatEvents(@PathVariable Long chatId, @RequestParam(value = "afterTimelineId", required = false) Long afterTimelineId, @RequestParam(value = "limit", required = false) Integer limit) {
+        if (chatId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        return ResponseEntity.ok(chatEventService.getEventsAfterTimeline(chatId, afterTimelineId, limit));
+    }
+
+
 
 //    @GetMapping("/{chatId}/join-request")
 //    public ResponseEntity<List<JoinRequest>> getAllJoinRequest(@PathVariable Long chatId) {

@@ -33,8 +33,8 @@ public class ChatEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "timeline_id", nullable = false)
-    private Integer timelineId;
+    @Column(name = "event_timeline_id", nullable = false)
+    private Long timelineId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
@@ -44,15 +44,15 @@ public class ChatEvent {
     @Column(name = "data", columnDefinition = "jsonb")
     private JsonNode data;
 
-    @Column(name = "timestamp", nullable = false, updatable = false)
-    private Instant timestamp;
+//    @Column(name = "timestamp", nullable = false, updatable = false)
+//    private Instant timestamp; нету раздницу когда сделать event, мы все равно смотрим на timelineId
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 
-    @PrePersist
-    private void setTimestamp() {
-        this.timestamp = Instant.now();
-    }
+//    @PrePersist
+//    private void setTimestamp() {
+//        this.timestamp = Instant.now();
+//    }
 }

@@ -33,7 +33,7 @@ public class MessageDeserializer extends JsonDeserializer<Message> {
             message.setId(node.get("id").asLong());
         }
         if (node.has("timeline_id")) {
-            message.setTimelineId(node.get("timeline_id").asInt());
+            message.setTimelineId(node.get("timeline_id").asLong());
         }
         if (node.has("flags")) {
             message.setFlags(node.get("flags").asInt());

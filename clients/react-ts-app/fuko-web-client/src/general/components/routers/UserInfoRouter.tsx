@@ -1,13 +1,24 @@
 import { useParams } from "react-router-dom";
-import { UserInfo } from "../../../users/components/UserInfo";
+import { UserInfo, UserInfoAndSubToUser } from "../../../users/components/UserInfo";
 
 export function UserInfoRouter() {
-    const { id } = useParams<{ id: string }>();
-    const userId = Number(id);
+    const { userId } = useParams<{ userId: string }>();
+    const userIdNumber = Number(userId);
 
-    if (isNaN(userId)) {
+    if (isNaN(userIdNumber)) {
         return <h1>Error: Invalid user ID</h1>;
     }
 
-    return <UserInfo userId={userId} />;
+    return <UserInfo key={"usr" + userIdNumber} userId={userIdNumber} />;
+}
+
+export function UserInfoAndSubToUserRouter() {
+    const { userId } = useParams<{ userId: string }>();
+    const userIdNumber = Number(userId);
+
+    if (isNaN(userIdNumber)) {
+        return <h1>Error: Invalid user ID</h1>;
+    }
+
+    return <UserInfoAndSubToUser key={"usr" + userIdNumber} userId={userIdNumber} />;
 }

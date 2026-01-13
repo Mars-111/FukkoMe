@@ -72,7 +72,6 @@ file-service:
       issuer: "chats-service"
 
 
-
 logging:
   level:
     root: INFO

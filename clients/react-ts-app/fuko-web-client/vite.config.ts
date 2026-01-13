@@ -18,6 +18,13 @@ export default defineConfig({
     },
     allowedHosts: [
       'mars-ssn.ru'
-    ]
+    ],
+    sourcemapIgnoreList: () => true // Отключаем sourcemap на сервере разработки
+  },
+  build: {
+    sourcemap: false
+  },
+  esbuild: {
+    sourcemap: false
   }
 })

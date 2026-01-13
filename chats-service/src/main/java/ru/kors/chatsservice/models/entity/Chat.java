@@ -46,19 +46,23 @@ public class Chat {
     @JoinColumn(name = "owner_id", nullable = false)
     private Long ownerId;
 
+    @Column(name="original_avatar_id")
+    private Long originalAvatarId;
+
+    @Column(name = "small_avatar_id")
+    private Long smallAvatarId;
+
+    @Column(name = "large_avatar_id")
+    private Long largeAvatarId;
+
+    @Column(name = "fullscreen_avatar_id")
+    private Long fullscreenAvatarId;
+
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Message> messages;
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<ChatEvent> events;
-
-    @ElementCollection
-    @CollectionTable(
-            name = "chat_users",
-            joinColumns = @JoinColumn(name = "chat_id")
-    )
-    @Column(name = "user_id")
-    private Set<Long> userIds = new HashSet<>();
 
     //Запросы на вступление в чат. Он должен быть null если privateChat = false.
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -67,6 +71,10 @@ public class Chat {
     //Пользователи с ролями в чате
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<ChatRole> chatRoles;
+
+    @OneToOne
+    @JoinColumn(name = "default_role_id")
+    private ChatRole defaultRole;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -83,3 +91,13 @@ public class Chat {
         this.ownerId = ownerId;
     }
 }
+
+
+
+//    @ElementCollection
+//    @CollectionTable(
+//            name = "chat_users",
+//            joinColumns = @JoinColumn(name = "chat_id")
+//    )
+//    @Column(name = "user_id")
+//    private Set<Long> userIds = new HashSet<>();

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/ChatMemberRepository.java" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/ChatRepository.java" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/ChatRoleRepository.java" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/chats-service/src/main/java/ru/kors/chatsservice/repositories/UserChatRoleMappingRepository.java" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/identity-service/src/main/resources/search_index.sql" dialect="PostgreSQL" />
   </component>
 </project>

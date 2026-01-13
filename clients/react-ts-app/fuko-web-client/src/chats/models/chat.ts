@@ -9,13 +9,17 @@ export type Chat = {
     description: string;
     type: ChatType;    
     ownerId: number;
+    defaultRoleId: number;
+    smallAvatarId: number;
+    largeAvatarId: number;
+    fullscreenAvatarId: number;
     createdAt?: number;
 };
 
-export type requiredFieldsForChat = "id" | "version" | "tag" | "name" | "type" | "ownerId" | "description" | "createdAt";
+export type requiredFieldsForChat = "id" | "version" | "tag" | "name" | "type" | "ownerId" | "defaultRoleId" | "description" | "createdAt" | "small_avatar_id" | "large_avatar_id" | "fullscreen_avatar_id";
 export function objectToChat(
     obj: any, 
-    requiredFieldsForChat: requiredFieldsForChat[] = ["id", "version", "tag", "name", "type", "ownerId", "description"]
+    requiredFieldsForChat: requiredFieldsForChat[] = ["id", "version", "tag", "name", "type", "ownerId", "description", "small_avatar_id", "large_avatar_id", "fullscreen_avatar_id"]
 ): Chat {
     let chat: Chat = {} as Chat;
     if (requiredFieldsForChat.includes("id")) {
@@ -94,6 +98,17 @@ export function objectToChat(
         chat.description = obj.description;
     }
 
+    if (requiredFieldsForChat.includes("defaultRoleId")) {
+        const defaultRoleIdFromObj: number = obj.defaultRoleId || obj.default_role_id;
+        if (defaultRoleIdFromObj === undefined) {
+            throw new Error("Missing required field 'defaultRoleId' in objectToChat");
+        }
+        chat.defaultRoleId = defaultRoleIdFromObj;
+    }
+    else {
+        chat.defaultRoleId = obj.defaultRoleId || obj.default_role_id;
+    }
+
     if (requiredFieldsForChat.includes("createdAt")) {
         const createdAtFromObj: number | undefined = obj.created_at || obj.createdAt;
         if (createdAtFromObj === undefined) {
@@ -105,6 +120,38 @@ export function objectToChat(
         chat.createdAt = obj.created_at || obj.createdAt;
     }
 
+    if (requiredFieldsForChat.includes("small_avatar_id")) {
+        const smallAvatarIdFromObj: number = obj.small_avatar_id || obj.smallAvatarId;
+        if (smallAvatarIdFromObj === undefined) {
+            throw new Error("Missing required field 'small_avatar_id' in objectToChat");
+        }
+        chat.smallAvatarId = smallAvatarIdFromObj;
+    }
+    else {
+        chat.smallAvatarId = obj.small_avatar_id || obj.smallAvatarId;
+    }
+
+    if (requiredFieldsForChat.includes("large_avatar_id")) {
+        const largeAvatarIdFromObj: number = obj.large_avatar_id || obj.largeAvatarId;
+        if (largeAvatarIdFromObj === undefined) {
+            throw new Error("Missing required field 'large_avatar_id' in objectToChat");
+        }
+        chat.largeAvatarId = largeAvatarIdFromObj;
+    }
+    else {
+        chat.largeAvatarId = obj.large_avatar_id || obj.largeAvatarId;
+    }
+
+    if (requiredFieldsForChat.includes("fullscreen_avatar_id")) {
+        const fullscreenAvatarIdFromObj: number = obj.fullscreen_avatar_id || obj.fullscreenAvatarId;
+        if (fullscreenAvatarIdFromObj === undefined) {
+            throw new Error("Missing required field 'fullscreen_avatar_id' in objectToChat");
+        }
+        chat.fullscreenAvatarId = fullscreenAvatarIdFromObj;
+    }
+    else {
+        chat.fullscreenAvatarId = obj.fullscreen_avatar_id || obj.fullscreenAvatarId;
+    }
 
     return chat;
 }

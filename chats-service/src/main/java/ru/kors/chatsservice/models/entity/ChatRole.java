@@ -29,7 +29,7 @@ public class ChatRole {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_id", nullable = false)
+    @JoinColumn(name = "chat_id", nullable = false) //nullable true для default role
     private Chat chat;
 
     @Column(nullable = false, name = "name")
@@ -41,7 +41,10 @@ public class ChatRole {
 
     @Column(name = "access_flags")
     private Long accessFlags;
-    /*
+}
+
+
+/*
         Long - 64 бит:
         1 - бан
         2 - мут (в будущем придумать как хранить до какого)
@@ -108,4 +111,3 @@ public class ChatRole {
         63 -
         64 -
     */
-}

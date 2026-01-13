@@ -1,0 +1,42 @@
+:root {
+  /* Легко менять цвет кнопки и при желании сделать разные темы */
+  --chat-button-bg: #3b82f6;        /* blue-500 */
+  --chat-button-bg-hover: #60a5fa;  /* blue-400 */
+  --chat-button-bg-active: #3b82f6; /* чуть темнее можно сделать */
+  --chat-button-size: 48px;         /* удобно менять размер */
+}
+
+.create-chat-button {
+  width: var(--chat-button-size);
+  height: var(--chat-button-size);
+  border-radius: 50%;
+  background: var(--chat-button-bg);
+  color: white;
+  border: none;
+  outline: none;
+  cursor: pointer;
+
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 0;       /* чтобы плюс ровно центрировался */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: background-color 0.15s ease;
+  will-change: background-color, transform; /* ускорение анимации */
+}
+
+.create-chat-button:hover {
+  background: var(--chat-button-bg-hover);
+}
+
+.create-chat-button:active {
+  transform: scale(0.96); /* нативный эффект "тапа" */
+  background: var(--chat-button-bg-active);
+}
+
+.create-chat-button:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.4);
+}

@@ -1,7 +1,6 @@
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import { useIdentity } from '../hooks/useIdentity';
-import { error } from 'console';
 
 export function Login() {
     const [searchParams] = useSearchParams();

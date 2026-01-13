@@ -15,9 +15,9 @@ export type StateUser = {
         key: userId, value: Set<chatId>
         P.S. Если появиться источник актуальных данных о пользователи по сокету кроме чатов, то Set<number> заменить на Set<Pair<Откуда, id этого места>>.
     */
-    cachedGeneralChatsWithUsersMap: Map<number, Set<number>>;
-    addCachedUserFromChat: (userId: number, chatId: number) => void;
-    deleteCachedUsersFromChat: (chatId: number) => void;
+    generalChatsWithUser: Map<number, Set<number>>;
+    addGeneralChatsWithUser: (userId: number, chatId: number) => void;
+    deleteGeneralChatsWithUser: (userId: number, chatId: number) => void;
     /*
         Нужно требуеться ли обновление? 
         Эти boolean говорят нам, нужно ли обнолять пользоватея, если он актуален?
@@ -39,18 +39,24 @@ export const useUserCacheMetaStore = create<StateUser>((set, get) => ({
         currentSet.add(userId);
         set({ syncUserIdsAfterOpenSet: currentSet });
     },
-    cachedGeneralChatsWithUsersMap: new Map<number, Set<number>>(),
-    addCachedUserFromChat: (userId: number, chatId: number) => {
-        const currentMap = new Map(get().cachedGeneralChatsWithUsersMap);
+    generalChatsWithUser: new Map<number, Set<number>>(),
+    addGeneralChatsWithUser: (userId: number, chatId: number) => {
+        const currentMap = new Map(get().generalChatsWithUser);
         const chatSet = currentMap.get(userId) ?? new Set<number>();
         chatSet.add(chatId);
         currentMap.set(userId, chatSet);
-        set({ cachedGeneralChatsWithUsersMap: currentMap });
+        set({ generalChatsWithUser: currentMap });
     },
-    deleteCachedUsersFromChat: (chatId: number) => {
-        const currentMap = new Map(get().cachedGeneralChatsWithUsersMap);
-        currentMap.delete(chatId);
-        set({ cachedGeneralChatsWithUsersMap: currentMap });
+    deleteGeneralChatsWithUser: (userId: number, chatId: number) => {
+        const currentMap = new Map(get().generalChatsWithUser);
+        const chatSet = currentMap.get(userId);
+        if (chatSet) {
+            chatSet.delete(chatId);
+            if (chatSet.size === 0) {
+                currentMap.delete(userId);
+            }
+        }
+        set({ generalChatsWithUser: currentMap });
     },
     requiredUserUpdateMap: new Map<number, boolean>(),
     setRequiredUserUpdate: (userId: number, reqired: boolean) => {

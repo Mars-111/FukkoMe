@@ -13,8 +13,13 @@ import ru.kors.timelineservice.services.TimelineService;
 public class TimelineController {
     private final TimelineService timelineService;
 
-    @GetMapping("/{chatId}/next")
-    public int getNextOrderId(@PathVariable Long chatId) {
-        return timelineService.getNextTimelineId(chatId);
+    @GetMapping("/{chatId}/messages/next")
+    public long getNextMessageOrderId(@PathVariable Long chatId) {
+        return timelineService.getNextMessageTimelineId(chatId);
+    }
+
+    @GetMapping("/{chatId}/events/next")
+    public long getNextEventOrderId(@PathVariable Long chatId) {
+        return timelineService.getNextEventTimelineId(chatId);
     }
 }

@@ -1,11 +1,10 @@
 package ru.kors.chatsservice.controllers.internal.dto;
 
 
-public record ChangeChatDTO(
+public record UpdateChatDTO(
         String tag,
         String name,
-        Boolean privateChat,
-        Long ownerId
+        String description
 ) {
 
 }

@@ -9,6 +9,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
+import ru.kors.socketbrokerservice.listeners.dto.JoinChatUserDto;
 import ru.kors.socketbrokerservice.listeners.dto.UserProfileProjection;
 import ru.kors.socketbrokerservice.models.entity.ChatEvent;
 import ru.kors.socketbrokerservice.models.entity.Message;
@@ -49,17 +50,24 @@ public class MessageKafkaConsumer {
         ack.acknowledge(); //подтверждение обработки сообщения
     }
 
-    @KafkaListener(topics = "join-chat-users") // либо статичный groupId, либо каждому сервису свой редис + балансировщик нагрузки по пользователю
-    public void consumeJoinChatUsers(@Payload String messageJson, Acknowledgment ack) throws JsonProcessingException {
-        // Преобразование JSON в объект Message
-        Map<String, Long> data = objectMapper.readValue(messageJson, new TypeReference<Map<String, Long>>() {});
-        Long userId = data.get("user_id");
-        Long chatId = data.get("chat_id");
-
-        sessionManager.subscribeUserToChat(userId, "c:" + chatId);
-
-        ack.acknowledge(); //подтверждение обработки сообщения
-    }
+//    @KafkaListener(topics = "join-chat-users") // либо статичный groupId, либо каждому сервису свой редис + балансировщик нагрузки по пользователю
+//    public void consumeJoinChatUsers(@Payload String messageJson, Acknowledgment ack) throws JsonProcessingException {
+//        // Преобразование JSON в объект Message
+//        JoinChatUserDto data;
+//        try {
+//            data = objectMapper.readValue(messageJson, JoinChatUserDto.class);
+//        }
+//        catch (JsonProcessingException e) {
+//            log.error("Ошибка при обработке сообщения join-chat-users: json=\"" + messageJson + "\", error message=" + e.getMessage());
+//            ack.acknowledge(); //подтверждение обработки сообщения, чтобы не зацикливать ошибку
+//            return;
+//        }
+//
+//        sessionManager.subscribeUserToChat(data.getUserId(), "c:" + data.getChatId());
+//        sessionManager.sendPersonalMessage(data.getUserId(), messageJson);
+//
+//        ack.acknowledge(); //подтверждение обработки сообщения
+//    }
 
     @KafkaListener(topics = "user-online-status")
     public void consumeOnlineStatus(String messageJson, Acknowledgment ack) throws JsonProcessingException {

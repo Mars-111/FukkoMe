@@ -25,14 +25,26 @@ public class TimelineService {
     @Value("${master.timeline.password}")
     private String password;
 
-    public Integer getNextOrderId(Long chatId) {
+    public Long getNextMessageOrderId(Long chatId) {
         String basicAuth = Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8));
-        Integer nextOrderId = restClient.get()
-                .uri(url + "/api/chat/" + chatId + "/next")
+        Long nextOrderId = restClient.get()
+                .uri(url + "/api/chat/" + chatId + "/messages/next")
                 .header(HttpHeaders.AUTHORIZATION, "Basic " + basicAuth)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .body(Integer.class);
+                .body(Long.class);
+        log.info("Next Order Id: {}", nextOrderId);
+        return nextOrderId;
+    }
+
+    public Long getNextEventOrderId(Long chatId) {
+        String basicAuth = Base64.getEncoder().encodeToString((user + ":" + password).getBytes(StandardCharsets.UTF_8));
+        Long nextOrderId = restClient.get()
+                .uri(url + "/api/chat/" + chatId + "/events/next")
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + basicAuth)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(Long.class);
         log.info("Next Order Id: {}", nextOrderId);
         return nextOrderId;
     }

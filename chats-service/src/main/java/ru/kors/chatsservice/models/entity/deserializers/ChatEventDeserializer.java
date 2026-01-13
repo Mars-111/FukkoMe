@@ -36,7 +36,7 @@ public class ChatEventDeserializer extends JsonDeserializer<ChatEvent> {
         }
 
         if (node.has("timeline_id")) {
-            chatEvent.setTimelineId(node.get("timeline_id").asInt());
+            chatEvent.setTimelineId(node.get("timeline_id").asLong());
         }
 
         if (node.has("type")) {
@@ -49,9 +49,6 @@ public class ChatEventDeserializer extends JsonDeserializer<ChatEvent> {
         }
         if (node.has("data")) {
             chatEvent.setData(node.get("data"));
-        }
-        if (node.has("timestamp")) {
-            chatEvent.setTimestamp(Instant.ofEpochMilli(node.get("timestamp").asLong()));
         }
 
         return chatEvent;

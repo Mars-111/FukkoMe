@@ -2,7 +2,7 @@ import { debugUserFiedls, type User } from "../models/user";
 import { getUserCreatedAtRequest, getUserProfileRequest, getUserVersion, likeUsername, type UserProfileResponse } from "../internal/api/userApi";
 import { userDb } from "../internal/db/userCacheDatabase";
 import { useUserCacheMetaStore } from "../hooks/useUserCacheMetaStore";
-import { hasSubscribe } from "../../socket/useSocketUtil";
+
 
 export function userIsActual(userId: number, myUserId?: number): boolean {
     const stateMetaCache = useUserCacheMetaStore.getState();
@@ -21,12 +21,8 @@ export function userIsActual(userId: number, myUserId?: number): boolean {
         return false;
     }
 
-    if (hasSubscribe("u:" + userId)) {
-        return true;
-    }
-
     const generalChatsWithUser: Set<number> | undefined = 
-        stateMetaCache.cachedGeneralChatsWithUsersMap.get(userId);
+        stateMetaCache.generalChatsWithUser.get(userId);
     if (!generalChatsWithUser || generalChatsWithUser.size <= 0) {
         console.log("Общих чатов нету => не актульный поьзователь.")
         return false;
@@ -89,13 +85,7 @@ export async function syncUser(userId: number) {
     
     await sync();
 
-    const syncUserIdsAfterOpen: boolean = useUserCacheMetaStore.getState().syncUserIdsAfterOpenSet.has(userId);
-
-    if (!syncUserIdsAfterOpen) {
-        useUserCacheMetaStore.getState().addSyncUserIdsAfterOpen(userId);
-    }
-
-    // useUserCacheMetaStore.getState().setLastCheckUserVersion(userId);
+    useUserCacheMetaStore.getState().addSyncUserIdsAfterOpen(userId);
 }
 
 export async function updateUser(user: User) {
@@ -149,3 +139,12 @@ export async function likeUsernameAndSaveUsers(query: string, limit: number): Pr
     }
     return users;
 }
+
+export function userFound(user: User | "not found" | "start state"): user is User {
+    return user !== "start state" && user !== "not found";
+}
+
+export function userNotFound(user: User | "not found" | "start state"): user is User | "start state" {
+    return user === "not found";
+}
+

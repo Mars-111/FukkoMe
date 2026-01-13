@@ -29,8 +29,8 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "timeline_id", nullable = false)
-    private Integer timelineId;
+    @Column(name = "message_timeline_id", nullable = false)
+    private Long timelineId;
 
     private Integer flags = 0; //для разных флагов (например, закреп, удалено и т.д.)
 

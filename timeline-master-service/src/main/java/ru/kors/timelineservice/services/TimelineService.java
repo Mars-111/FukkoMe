@@ -18,16 +18,20 @@ import java.util.concurrent.locks.ReentrantLock;
 @AllArgsConstructor
 @Slf4j
 public class TimelineService {
+
     private final JdbcTemplate jdbcTemplate;
+
     private final ConcurrentMap<Long, TimelineModel> chatMap = new ConcurrentHashMap<>();
     private final BlockingQueue<Long> saveQueue = new LinkedBlockingQueue<>();
     private final Set<Long> enqueuedChats = ConcurrentHashMap.newKeySet();
+
     private final ExecutorService saverExecutor = Executors.newSingleThreadExecutor(createThreadFactory("timeline-saver", true));
     private final ScheduledExecutorService scheduledSaver = Executors.newSingleThreadScheduledExecutor(createThreadFactory("timeline-scheduler", true));
+
     private static final int CHANGES_BEFORE_SAVE = 3;
 
-    // Структура блокировок для синхронизации по chatId без String.intern
-    private final ReentrantLock[] stripedLocks = new ReentrantLock[64]; // В будущем увеличить
+    // Структура блокировок для безопасной инициализации chatMap
+    private final ReentrantLock[] stripedLocks = new ReentrantLock[64];
 
     {
         for (int i = 0; i < stripedLocks.length; i++) {
@@ -43,38 +47,64 @@ public class TimelineService {
     public void startSaver() {
         initDb();
 
+        // Поток для обработки очереди на сохранение
         saverExecutor.submit(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     Long chatId = saveQueue.take();
                     enqueuedChats.remove(chatId);
+
                     TimelineModel timeline = chatMap.get(chatId);
                     if (timeline != null && timeline.getUnsavedChanges() > 0) {
-                        saveToDb(chatId, timeline.getTimelineId());
+                        saveToDb(chatId, timeline);
                         timeline.resetUnsavedChanges();
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.info("Saver thread interrupted, terminating...");
                 } catch (Exception e) {
-                    log.error("Ошибка в потоке сохранения: {}", e.getMessage(), e);
+                    log.error("Error in saver thread: {}", e.getMessage(), e);
                 }
             }
         });
 
+        // Периодическое сохранение всех timeline как страховка
         scheduledSaver.scheduleAtFixedRate(() -> {
-            log.info("scheduledSaver - Периодическое сохранение всех изменённых timeline'ов...");
-            for (Map.Entry<Long, TimelineModel> entry : chatMap.entrySet()) {
-                Long chatId = entry.getKey();
-                TimelineModel timeline = entry.getValue();
-                if (timeline.getUnsavedChanges() > 0 && enqueuedChats.add(chatId)) {
-                    saveQueue.offer(chatId);
+            try {
+                for (Map.Entry<Long, TimelineModel> entry : chatMap.entrySet()) {
+                    Long chatId = entry.getKey();
+                    TimelineModel timeline = entry.getValue();
+                    if (timeline.getUnsavedChanges() > 0 && enqueuedChats.add(chatId)) {
+                        saveQueue.offer(chatId);
+                    }
                 }
+            } catch (Exception e) {
+                log.error("Scheduled saver error: {}", e.getMessage(), e);
             }
         }, 5, 5, TimeUnit.MINUTES);
     }
 
-    public int getNextTimelineId(long chatId) {
+    private void enqueueIfNeeded(long chatId, TimelineModel timeline) {
+        if (timeline.getUnsavedChanges() >= CHANGES_BEFORE_SAVE && enqueuedChats.add(chatId)) {
+            saveQueue.offer(chatId);
+        }
+    }
+
+    public long getNextMessageTimelineId(long chatId) {
+        TimelineModel timeline = getOrLoadTimeline(chatId);
+        long nextId = timeline.incrementMessageTimelineAndGet();
+        enqueueIfNeeded(chatId, timeline);
+        return nextId;
+    }
+
+    public long getNextEventTimelineId(long chatId) {
+        TimelineModel timeline = getOrLoadTimeline(chatId);
+        long nextId = timeline.incrementEventTimelineAndGet();
+        enqueueIfNeeded(chatId, timeline);
+        return nextId;
+    }
+
+    private TimelineModel getOrLoadTimeline(long chatId) {
         TimelineModel timeline = chatMap.get(chatId);
         if (timeline == null) {
             ReentrantLock lock = getLock(chatId);
@@ -85,75 +115,66 @@ public class TimelineService {
                 lock.unlock();
             }
         }
-
-        int nextId = timeline.incrementAndGet();
-        if (timeline.getUnsavedChanges() >= CHANGES_BEFORE_SAVE && enqueuedChats.add(chatId)) {
-            saveQueue.offer(chatId);
-        }
-
-        log.info("getNextTimelineId - Следующий ID для чата {}: {}", chatId, nextId);
-        return nextId;
+        return timeline;
     }
 
     private TimelineModel loadFromDb(Long chatId) {
         try {
-            log.info("loadFromDb - Загрузка timeline из БД для чата {}", chatId);
-            Integer id = jdbcTemplate.queryForObject(
-                    "SELECT timeline_id FROM chat_timeline WHERE chat_id = ?",
-                    Integer.class,
+            Map<String, Object> row = jdbcTemplate.queryForMap(
+                    "SELECT message_timeline_id, event_timeline_id FROM chat_timeline WHERE chat_id = ?",
                     chatId
             );
-            return new TimelineModel(id != null ? id : 0);
+            long msgId = row.get("message_timeline_id") != null ? ((Number) row.get("message_timeline_id")).longValue() : 0L;
+            long evtId = row.get("event_timeline_id") != null ? ((Number) row.get("event_timeline_id")).longValue() : 0L;
+            return new TimelineModel(msgId, evtId);
         } catch (EmptyResultDataAccessException e) {
-            log.info("loadFromDb - Чат {} не найден в БД, создаём новый timeline", chatId);
-            return new TimelineModel(0);
-        } catch (Exception e) {
-            log.error("loadFromDb - Ошибка при загрузке чата {}: {}", chatId, e.getMessage(), e);
-            throw e;
+            return new TimelineModel(0L, 0L);
         }
     }
 
-    private void saveToDb(long chatId, int timelineId) {
-        log.info("saveToDb - Сохраняем timeline: chatId={}, timelineId={}", chatId, timelineId);
+    private void saveToDb(long chatId, TimelineModel timeline) {
         jdbcTemplate.update(
-                "INSERT INTO chat_timeline (chat_id, timeline_id) VALUES (?, ?) " +
-                        "ON CONFLICT (chat_id) DO UPDATE SET timeline_id = EXCLUDED.timeline_id",
-                chatId, timelineId
+                "INSERT INTO chat_timeline (chat_id, message_timeline_id, event_timeline_id) VALUES (?, ?, ?) " +
+                        "ON CONFLICT (chat_id) DO UPDATE SET message_timeline_id = EXCLUDED.message_timeline_id, event_timeline_id = EXCLUDED.event_timeline_id",
+                chatId, timeline.getMessageTimelineId(), timeline.getEventTimelineId()
         );
     }
 
     private void initDb() {
-        log.info("initDb - Инициализация таблицы timeline");
         jdbcTemplate.execute("""
-                CREATE TABLE IF NOT EXISTS chat_timeline (
-                    chat_id BIGINT PRIMARY KEY,
-                    timeline_id INTEGER NOT NULL
-                )
-                """);
+            CREATE TABLE IF NOT EXISTS chat_timeline (
+                chat_id BIGINT PRIMARY KEY,
+                message_timeline_id BIGINT NOT NULL,
+                event_timeline_id BIGINT NOT NULL
+            )
+        """);
     }
 
     @PreDestroy
     public void shutdown() {
-        log.info("shutdown - Завершаем сервис TimelineService...");
+        log.info("Shutting down TimelineService...");
         try {
-            saverExecutor.shutdownNow();
-            scheduledSaver.shutdownNow();
-            flushAll();
+            flushAll(); // сначала сохраняем все изменения
+            saverExecutor.shutdown();
+            saverExecutor.awaitTermination(5, TimeUnit.SECONDS);
+            scheduledSaver.shutdown();
+            scheduledSaver.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         } catch (Exception e) {
-            log.error("shutdown - Ошибка при остановке сервиса: {}", e.getMessage(), e);
+            log.error("Error during shutdown: {}", e.getMessage(), e);
         } finally {
             saveQueue.clear();
             enqueuedChats.clear();
         }
-        log.info("shutdown - Завершено.");
+        log.info("TimelineService shutdown complete.");
     }
 
     private void flushAll() {
-        log.info("flushAll - Принудительное сохранение всех изменённых timeline'ов...");
         for (Map.Entry<Long, TimelineModel> entry : chatMap.entrySet()) {
             TimelineModel timeline = entry.getValue();
             if (timeline.getUnsavedChanges() > 0) {
-                saveToDb(entry.getKey(), timeline.getTimelineId());
+                saveToDb(entry.getKey(), timeline);
                 timeline.resetUnsavedChanges();
             }
         }

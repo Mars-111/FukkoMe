@@ -24,10 +24,6 @@ public class ChatEventSerializer extends JsonSerializer<ChatEvent> {
             jsonGenerator.writeTree(chatEvent.getData());
         }
 
-        if (chatEvent.getTimestamp() != null) {
-            jsonGenerator.writeNumberField("timestamp", chatEvent.getTimestamp().toEpochMilli());
-        }
-
         jsonGenerator.writeEndObject();
     }
 }
